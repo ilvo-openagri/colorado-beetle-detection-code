@@ -1,5 +1,4 @@
 testing/
-__pycache__/
 data/images_*
 data/label_[0-9]*
 data/labels_full_json

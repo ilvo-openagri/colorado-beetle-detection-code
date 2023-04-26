@@ -11,6 +11,7 @@ import joblib
 import seaborn as sn
 import pandas as pd
 import time
+from sklearn.metrics import confusion_matrix
 
 #variabels for time and confusion matrices
 stats = False
@@ -56,7 +57,7 @@ def filter_512(data, labels, model):
         if stats:
             global resize_time
             resize_time += time.time() - start_resize
-        if model.predict(img) == 1:
+        if model.predict(img) == 0:
             filtered_data.append(data[i])
             filtered_label.append(labels[i])
         print(f'\t{i}/{aantal}', end='\r', flush=True)
@@ -127,6 +128,12 @@ def test_model(data, predict_label, true_labels, size):
 
     return array
 
+def test_model2(model, dataset):
+    y_pred = model.predict(dataset, verbose=0)
+    y_true = np.concatenate([y for x, y in dataset], axis=0)
+    array = confusion_matrix(y_true, y_pred.round())
+    return array
+
 def plot_confusion_matrices(array256, array128, array64):
     f1_256 = (2*array256[1][1])/(2*array256[1][1]+array256[0][1]+array256[1][0])
     f1_128 = (2*array128[1][1])/(2*array128[1][1]+array128[0][1]+array128[1][0])
@@ -147,7 +154,7 @@ def plot_confusion_matrices(array256, array128, array64):
 
     fig.text(0.55,0.3,f'f1-score 256: {round(f1_256,4)}\nf1-score 128: {round(f1_128,4)}\nf1-score 64: {round(f1_64,4)}')
 
-    plt.savefig('./documentation/test.png')
+    plt.savefig('./documentation/test2.png')
 
 def predict_image(image, name):
     labels, pieces = img_to_512(image)
@@ -167,37 +174,40 @@ def predict_image(image, name):
         start256 = time.time()
     
     print('    model256', flush=True)
-    model256 = keras.models.load_model('./trained_models/model256_classweight/')
+    model256 = keras.models.load_model('./trained_models/model256_test/')
     filtered_data, filtered_label = filter_split(filtered_data, filtered_label, model256, 256)
 
     if stats:
         labels = open(f"./data/labels_full_txt/{name}.txt")
         global array256
-        array256 = test_model(filtered_data, filtered_label, labels, 256)
+        # array256 = test_model(filtered_data, filtered_label, labels, 256)
+        array256 = test_model2(model256, filtered_data)
         global time256
         time256 += (time.time() - start256) #/ len(filtered_data)
         start128 = time.time()
 
     print('    model128', flush=True)
-    model128 = keras.models.load_model('./trained_models/model128/')
+    model128 = keras.models.load_model('./trained_models/model128_test/')
     filtered_data, filtered_label = filter_split(filtered_data, filtered_label, model128, 128)
 
     if stats:
         labels = open(f"./data/labels_full_txt/{name}.txt")
         global array128
-        array128 = test_model(filtered_data, filtered_label, labels, 128)
+        # array128 = test_model(filtered_data, filtered_label, labels, 128)
+        array128 = test_model2(model128, filtered_data)
         global time128
         time128 += (time.time() - start128) #/ len(filtered_data)
         start64 = time.time()
 
     print('    model64', flush=True)
-    model64 = keras.models.load_model('./trained_models/model64/')
+    model64 = keras.models.load_model('./trained_models/model64_test/')
     filtered_data, filtered_label = filter_split(filtered_data, filtered_label, model64, 64)
 
     if stats:
         labels = open(f"./data/labels_full_txt/{name}.txt")
         global array64
-        array64 = test_model(filtered_data, filtered_label, labels, 64)
+        # array64 = test_model(filtered_data, filtered_label, labels, 64)
+        array64 = test_model2(model64, filtered_data)
         global time64
         time64 += (time.time() - start64) #/ len(filtered_data)
 
@@ -217,21 +227,21 @@ def performantie(image, name):
     
     start256 = time.time()
     print('    model256', flush=True)
-    model256 = keras.models.load_model('./trained_models/model256_classweight/')
+    model256 = keras.models.load_model('./trained_models/model256_test/')
     _, _ = filter_split(filtered_data, filtered_label, model256, 256)
     global time256
     time256 += (time.time() - start256) #/ len(filtered_data)
     
     start128 = time.time()
     print('    model128', flush=True)
-    model128 = keras.models.load_model('./trained_models/model128/')
+    model128 = keras.models.load_model('./trained_models/model128_test/')
     _, _ = filter_split(filtered_data, filtered_label, model128, 128)
     global time128
     time128 += (time.time() - start128) #/ len(filtered_data)
     
     start64 = time.time()
     print('    model64', flush=True)
-    model64 = keras.models.load_model('./trained_models/model64/')
+    model64 = keras.models.load_model('./trained_models/model64_test/')
     _, _ = filter_split(filtered_data, filtered_label, model64, 64)
     global time64
     time64 += (time.time() - start64) #/ len(filtered_data)
@@ -244,6 +254,9 @@ def main(path, statictics=False):
     '''
     global stats
     stats = statictics
+    total_array256 = [[0,0],[0,0]]
+    total_array128 = [[0,0],[0,0]] 
+    total_array64 = [[0,0],[0,0]]
     answer = {}
     start_time = time.time()
 
@@ -257,20 +270,23 @@ def main(path, statictics=False):
         image = skimage.io.imread(f'{path}/{file}')
         filename = file.split('.')[0]
 
-        # labels = predict_image(image, filename)
-        labels = performantie(image, filename)
+        labels = predict_image(image, filename)
+        # labels = performantie(image, filename)
 
-        # for i in range(2):
-        #     for j in range(2):
-        #         array256[i][j] = array256[i][j] + new_array256[i][j]
-        #         array128[i][j] = array128[i][j] + new_array128[i][j]
-        #         array64[i][j] = array64[i][j] + new_array64[i][j]
+        for i in range(2):
+            for j in range(2):
+                global array256
+                total_array256[i][j] = total_array256[i][j] + array256[i][j]
+                global array128
+                total_array128[i][j] = total_array128[i][j] + array128[i][j]
+                global array64
+                total_array64[i][j] = total_array64[i][j] + array64[i][j]
 
         answer[file] = labels
         
 
     if stats:
-        # plot_confusion_matrices(array256, array128, array64)
+        plot_confusion_matrices(total_array256, total_array128, total_array64)
         print(f'''Time per piece
 512: {round(time512,3)}s
 resize_time: {round(resize_time,3)}s
