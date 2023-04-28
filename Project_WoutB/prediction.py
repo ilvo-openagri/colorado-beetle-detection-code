@@ -84,7 +84,7 @@ def filter_split(data, labels, model, size):
             coordinate = [x_center - size/2 + size*(j%2) , y_center - size/2 + size*(j//2)]
             # print(coordinate)
             # print(prediction)
-            if prediction[0] > 0.5:
+            if prediction[0][1] > 0.5:
                 filtered_data.append(tiles[j])
                 filtered_label.append(coordinate)
                 continue
@@ -94,7 +94,7 @@ def filter_split(data, labels, model, size):
 
     return filtered_data, filtered_label
 
-def test_model(data, predict_label, true_labels, size):
+def test_model(predict_label, true_labels, size, lenght):
     try:
         lines = [line.rstrip() for line in true_labels.readlines()]
     except:
@@ -121,17 +121,11 @@ def test_model(data, predict_label, true_labels, size):
         FP = aantal - TP if aantal > TP else 0
 
     FN = len(lines)
-    TN = len(data)*4 - FN - TP - FP
+    TN = lenght*4 - FN - TP - FP
     
     array = [[TN, FP],
             [FN, TP]]
 
-    return array
-
-def test_model2(model, dataset):
-    y_pred = model.predict(dataset, verbose=0)
-    y_true = np.concatenate([y for x, y in dataset], axis=0)
-    array = confusion_matrix(y_true, y_pred.round())
     return array
 
 def plot_confusion_matrices(array256, array128, array64):
@@ -154,7 +148,7 @@ def plot_confusion_matrices(array256, array128, array64):
 
     fig.text(0.55,0.3,f'f1-score 256: {round(f1_256,4)}\nf1-score 128: {round(f1_128,4)}\nf1-score 64: {round(f1_64,4)}')
 
-    plt.savefig('./documentation/test2.png')
+    plt.savefig('./documentation/pipeline.png')
 
 def predict_image(image, name):
     labels, pieces = img_to_512(image)
@@ -174,40 +168,40 @@ def predict_image(image, name):
         start256 = time.time()
     
     print('    model256', flush=True)
-    model256 = keras.models.load_model('./trained_models/model256_test/')
+    model256 = keras.models.load_model('./trained_models/model256_class/')
+    lenght = len(filtered_data)
     filtered_data, filtered_label = filter_split(filtered_data, filtered_label, model256, 256)
 
     if stats:
         labels = open(f"./data/labels_full_txt/{name}.txt")
         global array256
-        # array256 = test_model(filtered_data, filtered_label, labels, 256)
-        array256 = test_model2(model256, filtered_data)
+        array256 = test_model(filtered_label, labels, 256, lenght)
         global time256
         time256 += (time.time() - start256) #/ len(filtered_data)
         start128 = time.time()
 
     print('    model128', flush=True)
-    model128 = keras.models.load_model('./trained_models/model128_test/')
+    model128 = keras.models.load_model('./trained_models/model128_class/')
+    lenght = len(filtered_data)
     filtered_data, filtered_label = filter_split(filtered_data, filtered_label, model128, 128)
 
     if stats:
         labels = open(f"./data/labels_full_txt/{name}.txt")
         global array128
-        # array128 = test_model(filtered_data, filtered_label, labels, 128)
-        array128 = test_model2(model128, filtered_data)
+        array128 = test_model(filtered_label, labels, 128, lenght)
         global time128
         time128 += (time.time() - start128) #/ len(filtered_data)
         start64 = time.time()
 
     print('    model64', flush=True)
-    model64 = keras.models.load_model('./trained_models/model64_test/')
+    model64 = keras.models.load_model('./trained_models/model64_class/')
+    lenght = len(filtered_data)
     filtered_data, filtered_label = filter_split(filtered_data, filtered_label, model64, 64)
 
     if stats:
         labels = open(f"./data/labels_full_txt/{name}.txt")
         global array64
-        # array64 = test_model(filtered_data, filtered_label, labels, 64)
-        array64 = test_model2(model64, filtered_data)
+        array64 = test_model(filtered_label, labels, 64, lenght)
         global time64
         time64 += (time.time() - start64) #/ len(filtered_data)
 
@@ -282,12 +276,32 @@ def main(path, statictics=False):
                 global array64
                 total_array64[i][j] = total_array64[i][j] + array64[i][j]
 
+#         print(f'''{teller}
+# 256
+# [[{total_array256[0][0]},{total_array256[0][1]}],
+# [{total_array256[1][0]},{total_array256[1][1]}]]
+# [[{array256[0][0]},{array256[0][1]}],
+# [{array256[1][0]},{array256[1][1]}]]
+
+# 128
+# [[{total_array128[0][0]},{total_array128[0][1]}],
+# [{total_array128[1][0]},{total_array128[1][1]}]]
+# [[{array128[0][0]},{array128[0][1]}],
+# [{array128[1][0]},{array128[1][1]}]]
+
+# 64
+# [[{total_array64[0][0]},{total_array64[0][1]}],
+# [{total_array64[1][0]},{total_array64[1][1]}]]
+# [[{array64[0][0]},{array64[0][1]}],
+# [{array64[1][0]},{array64[1][1]}]]
+#         ''')
+
         answer[file] = labels
         
 
     if stats:
         plot_confusion_matrices(total_array256, total_array128, total_array64)
-        print(f'''Time per piece
+        print(f'''Time
 512: {round(time512,3)}s
 resize_time: {round(resize_time,3)}s
 256: {round(time256,3)}s
@@ -301,7 +315,7 @@ resize_time: {round(resize_time,3)}s
 
 
 
-path = './data/images_test'
+path = './data/images_full'
 
 labels = main(path, True)
 # print([el for el in labels])
