@@ -126,7 +126,7 @@ for file in os.listdir(path):
     aantal = len(filtered_data64)
     for i in range(aantal):
         x, y = filtered_label64[i]
-        skimage.io.imsave('{:s}/{:s}_{:.0f}_{:.0f}.png'.format(filtered_path,name,x,y), image[int(y)-32:int(y)+96, int(x)-32:int(x)+96])
+        skimage.io.imsave('{:s}/{:s}_{:.0f}_{:.0f}.png'.format(filtered_path,name,x,y), image[int(y)-32:int(y)+32, int(x)-32:int(x)+32])
 
     ax = plt.subplot()
     ax.imshow(image)
