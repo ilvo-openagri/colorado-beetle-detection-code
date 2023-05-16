@@ -1,0 +1,15 @@
+glenn.ganseman@student.hogent.be	20.0	                            695.0	                            18	                            20
+glenn.ganseman@student.hogent.be	72.0	                            974.5	                            22	                            25
+glenn.ganseman@student.hogent.be	720.5	                            1907.5	                            29	                            27
+glenn.ganseman@student.hogent.be	734.0	                            2385.5	                            24	                            15
+glenn.ganseman@student.hogent.be	791.5	                            3322.5	                            29	                            27
+glenn.ganseman@student.hogent.be	1250.0	                            3218.0	                            14	                            12
+glenn.ganseman@student.hogent.be	1154.5	                            3248.0	                            31	                            40
+glenn.ganseman@student.hogent.be	1185.0	                            3363.0	                            16	                            26
+glenn.ganseman@student.hogent.be	773.0	                            4480.5	                            32	                            27
+glenn.ganseman@student.hogent.be	1618.0	                            3107.0	                            28	                            22
+glenn.ganseman@student.hogent.be	1776.5	                            2709.5	                            29	                            21
+glenn.ganseman@student.hogent.be	1013.0	                            1119.5	                            18	                            29
+glenn.ganseman@student.hogent.be	4339.5	                            245.5	                            25	                            41
+glenn.ganseman@student.hogent.be	6670.5	                            198.5	                            33	                            25
+glenn.ganseman@student.hogent.be	7293.0	                            245.5	                            24	                            23

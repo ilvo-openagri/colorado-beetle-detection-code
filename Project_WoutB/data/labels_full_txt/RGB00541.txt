@@ -1,0 +1,3 @@
+glenn.ganseman@student.hogent.be	20.5	                            832.0	                            13	                            12
+glenn.ganseman@student.hogent.be	87.5	                            725.0	                            15	                            16
+glenn.ganseman@student.hogent.be	6762.5	                            3286.5	                            29	                            23

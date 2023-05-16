@@ -1,0 +1,15 @@
+wout.boeykens@student.hogent.be	1412.0	                            4124.0	                            32	                            28
+wout.boeykens@student.hogent.be	1358.5	                            4025.5	                            21	                            25
+wout.boeykens@student.hogent.be	1418.5	                            4005.5	                            19	                            27
+wout.boeykens@student.hogent.be	1225.0	                            2047.5	                            32	                            27
+wout.boeykens@student.hogent.be	3557.5	                            1552.5	                            21	                            39
+wout.boeykens@student.hogent.be	5175.0	                            4551.5	                            26	                            33
+wout.boeykens@student.hogent.be	4932.0	                            379.0	                            22	                            28
+wout.boeykens@student.hogent.be	6354.0	                            251.0	                            30	                            18
+wout.boeykens@student.hogent.be	6413.0	                            346.5	                            28	                            25
+wout.boeykens@student.hogent.be	6694.0	                            400.5	                            28	                            17
+wout.boeykens@student.hogent.be	6716.0	                            198.5	                            16	                            29
+wout.boeykens@student.hogent.be	6859.0	                            84.5	                            30	                            29
+wout.boeykens@student.hogent.be	7053.0	                            467.5	                            22	                            25
+wout.boeykens@student.hogent.be	7536.5	                            5067.5	                            33	                            21
+wout.boeykens@student.hogent.be	7667.5	                            4901.5	                            33	                            29

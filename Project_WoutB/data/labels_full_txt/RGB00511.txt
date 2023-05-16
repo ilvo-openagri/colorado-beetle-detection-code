@@ -1,0 +1,15 @@
+glenn.ganseman@student.hogent.be	810.5	                            1228.0	                            13	                            14
+glenn.ganseman@student.hogent.be	917.0	                            1246.5	                            10	                            7
+glenn.ganseman@student.hogent.be	966.5	                            1304.0	                            11	                            16
+glenn.ganseman@student.hogent.be	1008.5	                            1340.5	                            9	                            11
+glenn.ganseman@student.hogent.be	1097.0	                            1194.0	                            14	                            16
+glenn.ganseman@student.hogent.be	1380.0	                            1009.0	                            12	                            16
+glenn.ganseman@student.hogent.be	2463.0	                            1846.0	                            10	                            12
+glenn.ganseman@student.hogent.be	4452.0	                            4696.5	                            18	                            11
+glenn.ganseman@student.hogent.be	4556.5	                            4710.0	                            15	                            14
+glenn.ganseman@student.hogent.be	4522.0	                            4789.5	                            6	                            7
+glenn.ganseman@student.hogent.be	4476.5	                            4768.5	                            17	                            13
+glenn.ganseman@student.hogent.be	4464.5	                            4806.0	                            15	                            22
+glenn.ganseman@student.hogent.be	4474.0	                            4802.0	                            10	                            16
+glenn.ganseman@student.hogent.be	4473.0	                            4788.5	                            16	                            13
+glenn.ganseman@student.hogent.be	4480.0	                            4779.5	                            18	                            9

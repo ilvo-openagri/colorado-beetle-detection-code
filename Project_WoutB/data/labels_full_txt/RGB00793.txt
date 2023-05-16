@@ -1,0 +1,15 @@
+wout.boeykens@student.hogent.be	853.5	                            5165.5	                            23	                            31
+wout.boeykens@student.hogent.be	1509.5	                            4321.0	                            21	                            26
+wout.boeykens@student.hogent.be	5310.0	                            757.5	                            28	                            21
+wout.boeykens@student.hogent.be	6264.5	                            1463.5	                            35	                            35
+wout.boeykens@student.hogent.be	6278.5	                            1811.5	                            27	                            23
+wout.boeykens@student.hogent.be	6370.0	                            2380.5	                            20	                            27
+wout.boeykens@student.hogent.be	6117.5	                            2573.0	                            33	                            32
+wout.boeykens@student.hogent.be	6256.0	                            4145.0	                            22	                            26
+wout.boeykens@student.hogent.be	6533.0	                            4304.5	                            26	                            27
+wout.boeykens@student.hogent.be	6573.0	                            3093.0	                            36	                            22
+wout.boeykens@student.hogent.be	6486.5	                            2630.0	                            19	                            20
+wout.boeykens@student.hogent.be	6701.0	                            1523.0	                            34	                            24
+wout.boeykens@student.hogent.be	7162.5	                            677.0	                            23	                            38
+wout.boeykens@student.hogent.be	7004.0	                            2162.5	                            34	                            27
+wout.boeykens@student.hogent.be	7928.0	                            246.0	                            32	                            36

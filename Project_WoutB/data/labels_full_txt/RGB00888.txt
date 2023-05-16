@@ -1,0 +1,15 @@
+wout.boeykens@student.hogent.be	896.0	                            4153.0	                            20	                            20
+wout.boeykens@student.hogent.be	1550.0	                            4832.5	                            14	                            19
+wout.boeykens@student.hogent.be	1266.0	                            4335.5	                            16	                            17
+wout.boeykens@student.hogent.be	1305.0	                            1749.0	                            18	                            22
+wout.boeykens@student.hogent.be	2084.0	                            665.5	                            22	                            21
+wout.boeykens@student.hogent.be	1388.0	                            1293.0	                            18	                            16
+wout.boeykens@student.hogent.be	2065.5	                            2281.5	                            27	                            27
+wout.boeykens@student.hogent.be	2134.5	                            5138.5	                            23	                            15
+wout.boeykens@student.hogent.be	2541.5	                            255.5	                            29	                            27
+wout.boeykens@student.hogent.be	3636.5	                            82.0	                            29	                            38
+wout.boeykens@student.hogent.be	3087.5	                            477.5	                            31	                            19
+wout.boeykens@student.hogent.be	3102.0	                            515.0	                            26	                            32
+wout.boeykens@student.hogent.be	4278.5	                            4855.0	                            37	                            22
+wout.boeykens@student.hogent.be	3964.0	                            4087.5	                            24	                            13
+wout.boeykens@student.hogent.be	4497.5	                            3358.0	                            33	                            44

@@ -1,0 +1,7 @@
+wout.boeykens@student.hogent.be	2574.5	                            3092.0	                            31	                            34
+wout.boeykens@student.hogent.be	4346.5	                            313.0	                            39	                            28
+wout.boeykens@student.hogent.be	4988.0	                            711.0	                            20	                            18
+wout.boeykens@student.hogent.be	4504.5	                            1120.0	                            19	                            10
+wout.boeykens@student.hogent.be	4641.5	                            4444.0	                            41	                            26
+wout.boeykens@student.hogent.be	5695.0	                            2158.5	                            18	                            19
+wout.boeykens@student.hogent.be	7715.0	                            4795.0	                            20	                            30

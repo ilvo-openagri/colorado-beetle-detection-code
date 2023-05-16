@@ -1,0 +1,15 @@
+glenn.ganseman@student.hogent.be	45.0	                            2537.5	                            30	                            43
+glenn.ganseman@student.hogent.be	297.5	                            4375.0	                            15	                            14
+glenn.ganseman@student.hogent.be	255.0	                            4962.5	                            12	                            17
+glenn.ganseman@student.hogent.be	243.0	                            4939.0	                            18	                            24
+glenn.ganseman@student.hogent.be	1443.0	                            3768.5	                            20	                            15
+glenn.ganseman@student.hogent.be	1477.0	                            277.5	                            16	                            13
+glenn.ganseman@student.hogent.be	2302.0	                            1357.5	                            26	                            19
+glenn.ganseman@student.hogent.be	2552.0	                            3797.5	                            12	                            19
+glenn.ganseman@student.hogent.be	5671.0	                            3612.5	                            34	                            31
+glenn.ganseman@student.hogent.be	5763.0	                            2955.0	                            28	                            22
+glenn.ganseman@student.hogent.be	6140.5	                            2991.0	                            33	                            28
+glenn.ganseman@student.hogent.be	5748.0	                            1437.0	                            28	                            32
+glenn.ganseman@student.hogent.be	4968.5	                            1406.5	                            27	                            17
+glenn.ganseman@student.hogent.be	6652.5	                            878.0	                            15	                            12
+glenn.ganseman@student.hogent.be	7154.5	                            1234.5	                            17	                            17
