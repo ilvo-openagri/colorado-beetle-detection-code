@@ -2,4 +2,6 @@ testing/
 data/images_*
 data/label_[0-9]*
 data/old_labels_full_json
+data/old_labels_full_txt
 data/export-2023-05-08T12_44_13.149Z.json
+data/new_labels_txt
