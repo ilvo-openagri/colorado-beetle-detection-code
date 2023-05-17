@@ -1,0 +1,9 @@
+Snelheidsverbeterinen:
+
+segmentatie naar 512 (multithreading)
+	58 min -> 16 min
+
+kmeans
+	training: 1h20m -> 10 min (multithreading)
+	filtering: 1h40 -> 6m43
+		     2m20 -> 10s (eerst alle predicten, dan filteren)
