@@ -12,6 +12,7 @@ import seaborn as sn
 import pandas as pd
 import time
 from sklearn.metrics import confusion_matrix
+from joblib import Parallel, delayed
 
 #variabels for time and confusion matrices
 stats = False
@@ -54,6 +55,8 @@ def filter_512(data, labels, model):
         start_resize = time.time()
         img = skimage.transform.resize(data[i], (64,64))
         img = img.reshape((1,-1))
+        img = img / 255
+        img = np.array(img, dtype=np.float32)
         if stats:
             global resize_time
             resize_time += time.time() - start_resize
@@ -76,14 +79,10 @@ def filter_split(data, labels, model, size):
         N = image.shape[1]//2
         tiles = [image[y:y+N, x:x+M] for y in range(0,image.shape[1],N) for x in range(0,image.shape[0],M)]
         x_center, y_center = labels[i]
-        # print(x_center, y_center)
         for j in range(4):
             tile = skimage.transform.resize(tiles[j], (size,size))
             prediction = model.predict(tf.reshape(tile, [1, size, size, 3]), verbose=0)
-            # print(j%2, j//2)
             coordinate = [x_center - size/2 + size*(j%2) , y_center - size/2 + size*(j//2)]
-            # print(coordinate)
-            # print(prediction)
             if prediction[0][1] > 0.5:
                 filtered_data.append(tiles[j])
                 filtered_label.append(coordinate)
@@ -110,7 +109,9 @@ def test_model(predict_label, true_labels, size, lenght):
         delete = []
         x, y = predict_label[i]
         for line in lines:
-            _, x_center, y_center, _, _ = [float(s) for s in line.split("\t")]
+            _, x_center, y_center, _, _ = [s for s in line.split("\t")]
+            x_center = float(x_center)
+            y_center = float(y_center)
             if (x-size/2 < x_center < x+size/2) and (y-size/2 < y_center < y+size/2):
                 TP += 1
                 delete.append(line)
@@ -159,8 +160,8 @@ def predict_image(image, name):
     model512 = joblib.load('./trained_models/kmeans')
     filtered_data, filtered_label = filter_512(pieces, labels, model512)
 
-    filtered_data = np.array(filtered_data)
-    filtered_data = filtered_data / 255
+    # filtered_data = np.array(filtered_data)
+    # filtered_data = filtered_data / 255
 
     if stats:
         global time512
@@ -168,7 +169,7 @@ def predict_image(image, name):
         start256 = time.time()
     
     print('    model256', flush=True)
-    model256 = keras.models.load_model('./trained_models/model256_class/')
+    model256 = keras.models.load_model('./trained_models/model256/')
     lenght = len(filtered_data)
     filtered_data, filtered_label = filter_split(filtered_data, filtered_label, model256, 256)
 
@@ -181,8 +182,13 @@ def predict_image(image, name):
         start128 = time.time()
 
     print('    model128', flush=True)
-    model128 = keras.models.load_model('./trained_models/model128_class/')
+    model128 = keras.models.load_model('./trained_models/model128/')
     lenght = len(filtered_data)
+
+
+
+
+    
     filtered_data, filtered_label = filter_split(filtered_data, filtered_label, model128, 128)
 
     if stats:
@@ -194,7 +200,7 @@ def predict_image(image, name):
         start64 = time.time()
 
     print('    model64', flush=True)
-    model64 = keras.models.load_model('./trained_models/model64_class/')
+    model64 = keras.models.load_model('./trained_models/model64/')
     lenght = len(filtered_data)
     filtered_data, filtered_label = filter_split(filtered_data, filtered_label, model64, 64)
 
@@ -257,65 +263,46 @@ def main(path, statictics=False):
     aantal = len(os.listdir(path))
     teller = 0
 
-    for file in os.listdir(path):
-        teller += 1
+    with tf.device('/CPU:0'):
+        for file in os.listdir(path):
+            teller += 1
 
-        print(f'{teller}/{aantal}', flush=True)
-        image = skimage.io.imread(f'{path}/{file}')
-        filename = file.split('.')[0]
+            print(f'{teller}/{aantal}', flush=True)
+            image = skimage.io.imread(f'{path}/{file}')
+            filename = file.split('.')[0]
 
-        labels = predict_image(image, filename)
-        # labels = performantie(image, filename)
+            labels = predict_image(image, filename)
+            # labels = performantie(image, filename)
 
-        for i in range(2):
-            for j in range(2):
-                global array256
-                total_array256[i][j] = total_array256[i][j] + array256[i][j]
-                global array128
-                total_array128[i][j] = total_array128[i][j] + array128[i][j]
-                global array64
-                total_array64[i][j] = total_array64[i][j] + array64[i][j]
+            for i in range(2):
+                for j in range(2):
+                    global array256
+                    total_array256[i][j] = total_array256[i][j] + array256[i][j]
+                    global array128
+                    total_array128[i][j] = total_array128[i][j] + array128[i][j]
+                    global array64
+                    total_array64[i][j] = total_array64[i][j] + array64[i][j]
 
-#         print(f'''{teller}
-# 256
-# [[{total_array256[0][0]},{total_array256[0][1]}],
-# [{total_array256[1][0]},{total_array256[1][1]}]]
-# [[{array256[0][0]},{array256[0][1]}],
-# [{array256[1][0]},{array256[1][1]}]]
+            answer[file] = labels
+            
 
-# 128
-# [[{total_array128[0][0]},{total_array128[0][1]}],
-# [{total_array128[1][0]},{total_array128[1][1]}]]
-# [[{array128[0][0]},{array128[0][1]}],
-# [{array128[1][0]},{array128[1][1]}]]
-
-# 64
-# [[{total_array64[0][0]},{total_array64[0][1]}],
-# [{total_array64[1][0]},{total_array64[1][1]}]]
-# [[{array64[0][0]},{array64[0][1]}],
-# [{array64[1][0]},{array64[1][1]}]]
-#         ''')
-
-        answer[file] = labels
+        if stats:
+            plot_confusion_matrices(total_array256, total_array128, total_array64)
+            print(f'''Time
+        512: {time512//60}m {round(time512%60,3)}s
+        resize_time: {resize_time//60}m {round(resize_time%60,3)}s
+        256: {time256//60}m {round(time256%60,3)}s
+        128: {time128//60}m {round(time128%60,3)}s
+        64:  {time64//60}m {round(time64%60,3)}s
+                ''')
         
-
-    if stats:
-        plot_confusion_matrices(total_array256, total_array128, total_array64)
-        print(f'''Time
-512: {round(time512,3)}s
-resize_time: {round(resize_time,3)}s
-256: {round(time256,3)}s
-128: {round(time128,3)}s
-64:  {round(time64,3)}s
-            ''')
-    
-    total_time = time.time() - start_time
-    print(f'Time elapsed: {total_time//60}m {round(total_time%60,3)}s')
+        total_time = time.time() - start_time
+        print(f'Time elapsed: {total_time//60}m {round(total_time%60,3)}s')
     return answer
 
 
 
-path = './data/images_full'
+path = './data/images_test'
 
 labels = main(path, True)
 # print([el for el in labels])
