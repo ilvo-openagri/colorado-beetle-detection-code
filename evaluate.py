@@ -82,7 +82,15 @@ class OpenAgriAI:
 
         return pieces
 
-    def _filter_kmeans(self, source_image: np.ndarray):
+    def _filter_kmeans(self, source_image: np.ndarray) -> bool:
+        """Do a kmeans classification to identify the leaves vs soil
+
+        Args:
+            source_image (np.ndarray): Source image
+
+        Returns:
+            bool: Does the classification match to a leaf?
+        """
         # Reshape the input image
         start_reshape = time.time()
         resized_image = skimage.transform.resize(
@@ -142,7 +150,12 @@ class OpenAgriAI:
         for leave_image in leave_images:
             leave_image["image"] = np.array(leave_image["image"]) / 255
 
-        # Split the images in four parts:
+        # We do the beetle matching based on three different models:
+        # - input: 256x256 images
+        # - input: 128x128 images
+        # - input: 64x64 images
+        # Only the pieces that passed the previous stage, are parsed to the next model.
+        # The result will be the matching 64x64 pieces matching the Colorado Beetle.
         active_image_set = leave_images
         matching_image_set = []
         pipeline_models = [256, 128]
