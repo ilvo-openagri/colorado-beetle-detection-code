@@ -18,24 +18,45 @@ import skimage.filters
 import skimage.io
 import skimage.transform
 import tensorflow as tf
+from enum import Enum
 
 # Local imports
 import constants
+
+
+class TensorFlowVersion(Enum):
+    """Tensorflow versions that can be selected for the model
+    """
+    DEFAULT = "default"
+    LITE = "lite"
 
 
 class OpenAgriAI:
     """Class to perform all AI related steps for the OpenAgri project.
     """
 
-    def __init__(self):
+    def __init__(self, tensorflow_version: TensorFlowVersion):
         self.logger = logging.getLogger("OpenAgriAIModule")
         self.logger.setLevel(logging.INFO)
+        self._tensorflow_version = tensorflow_version
         self._kmeans_model = joblib.load(constants.MODEL_KMEANS)
-        self._pipeline_models = {
-            # 64: keras.models.load_model(constants.MODEL_64),
-            128: keras.models.load_model(constants.MODEL_128),
-            256: keras.models.load_model(constants.MODEL_256),
-        }
+
+        if self._tensorflow_version == TensorFlowVersion.DEFAULT:
+            self._pipeline_models = {
+                256: keras.models.load_model(constants.MODEL_256),
+                128: keras.models.load_model(constants.MODEL_128),
+                # 64: keras.models.load_model(constants.MODEL_64),
+            }
+            self._pipeline_models_sizes = [256, 128]
+        elif self._tensorflow_version == TensorFlowVersion.LITE:
+            self._pipeline_lite_interpreters = {
+                256: tf.lite.Interpreter(constants.MODEL_LITE_256),
+                128: tf.lite.Interpreter(constants.MODEL_LITE_128),
+                64: tf.lite.Interpreter(constants.MODEL_LITE_64),
+            }
+            self._pipeline_models_sizes = [256, 128, 64]
+            for pipeline_lite_interpreter in self._pipeline_lite_interpreters.values():
+                pipeline_lite_interpreter.allocate_tensors()
 
     def _split_image(self, source_image: np.ndarray, piece_size: int,
                      x_offset: int = 0, y_offset: int = 0) -> list:
@@ -116,14 +137,29 @@ class OpenAgriAI:
         Returns:
             bool: Return if the image matches the pipeline stage
         """
+        filter_result = False
         size = len(source_image)
         start_pred = time.time()
         reshaped_image = tf.reshape(source_image, [1, size, size, 3])
-        prediction = self._pipeline_models[size].predict(
-            reshaped_image, verbose=0)
+        if self._tensorflow_version == TensorFlowVersion.DEFAULT:
+            prediction = self._pipeline_models[size].predict(
+                reshaped_image, verbose=0)
+            filter_result = prediction[0][1] > 0.5
+        elif self._tensorflow_version == TensorFlowVersion.LITE:
+            interpreter = self._pipeline_lite_interpreters[size]
+            interpreter.set_tensor(
+                tensor_index=interpreter.get_input_details()[0]['index'],
+                value=reshaped_image
+            )
+            interpreter.invoke()
+            filter_result = interpreter.get_tensor(
+                tensor_index=interpreter.get_output_details()[0]['index']
+            )
+            filter_result = filter_result[0][1] > 0.5
+
         pred_time = time.time() - start_pred
 
-        return prediction[0][1] > 0.5
+        return filter_result
 
     def evaluate(self, image_path: Path):
         """Evaluate the images from the file path against the openagri AI model
@@ -148,7 +184,8 @@ class OpenAgriAI:
 
         # Do some preprocessing:
         for leave_image in leave_images:
-            leave_image["image"] = np.array(leave_image["image"]) / 255
+            leave_image["image"] = np.array(
+                leave_image["image"], dtype=np.float32) / 255
 
         # We do the beetle matching based on three different models:
         # - input: 256x256 images
@@ -158,8 +195,7 @@ class OpenAgriAI:
         # The result will be the matching 64x64 pieces matching the Colorado Beetle.
         active_image_set = leave_images
         matching_image_set = []
-        pipeline_models = [256, 128]
-        for pipeline_model in pipeline_models:
+        for pipeline_model in self._pipeline_models_sizes:
             matching_image_set = []
             for active_image in active_image_set:
                 active_images_split = self._split_image(
@@ -192,8 +228,15 @@ if __name__ == '__main__':
         description='Evaluate image(s) from Colorado Beetles')
     parser.add_argument('--input', dest="input", metavar='path', required=True,
                         help='The path to the images')
+    parser.add_argument('--tensorflow', dest="tensorflow", metavar='path', required=True,
+                        choices=[
+                            TensorFlowVersion.DEFAULT.value,
+                            TensorFlowVersion.LITE.value
+                        ],
+                        default=TensorFlowVersion.DEFAULT.value,
+                        help='Select the tensorflow version (lite or default)')
     script_arguments = parser.parse_args()
 
     # Initialise and start the OpenAgri AI module:
-    ai_module = OpenAgriAI()
+    ai_module = OpenAgriAI(TensorFlowVersion(script_arguments.tensorflow))
     ai_module.evaluate(image_path=Path(script_arguments.input))
