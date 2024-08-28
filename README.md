@@ -1,36 +1,27 @@
 # Coloradobeetles
-
-
+This code detects Colorado Beetles in high resolution images.
 
 ## Getting started
-To run the model on a NVIDIA GPU with CUDA, the pytorch packages need to be installed for the correct of the machine. To verify your CUDA version, please run
+First make sure that the python environment has been created.
+You can run this in the system python environment, but this is not required.
+It is better to create a python virtual environment.
 
+For reference, this project was tested with python3.11. If you use a newer python version, ensure that the packages are available for the python version.
+
+To create a virtual environment, execute following command:
 ```Powershell
-PS C:\Users\jbauwens\Documents\Code\openagri_ai> nvidia-smi.exe
-Fri Aug 23 15:21:53 2024       
-+-----------------------------------------------------------------------------+
-| NVIDIA-SMI 528.52       Driver Version: 528.52       CUDA Version: 12.0     |
-|-------------------------------+----------------------+----------------------+
-| GPU  Name            TCC/WDDM | Bus-Id        Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
-|                               |                      |               MIG M. |
-|===============================+======================+======================|
-|   0  NVIDIA GeForce ... WDDM  | 00000000:01:00.0 Off |                  N/A |
-| N/A   48C    P0     9W /  30W |      0MiB /  2048MiB |      0%      Default |
-|                               |                      |                  N/A |
-+-------------------------------+----------------------+----------------------+
-
-+-----------------------------------------------------------------------------+
-| Processes:                                                                  |
-|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
-|        ID   ID                                                   Usage      |
-|=============================================================================|
-|  No running processes found                                                 |
-+-----------------------------------------------------------------------------+
+python -m venv .venv
 ```
 
-This output mentions that CUDA version 12.0 is used. To install the python dependencies with the correct CUDA version, change requirements.txt.
-
+Active the virtual environment:
+```Powershell
+.\.venv\Scripts\activate
+# This should activate the virtual environment. To verify, execute:
+(Get-Command python).Path
 ```
---extra-index-url https://download.pytorch.org/whl/cu121
+
+To install the required python packages, the requirements.txt was created.
+This file can be used to easily install the dependencies.
+```Powershell
+python.exe -m pip install -r requirements.txt
 ```
