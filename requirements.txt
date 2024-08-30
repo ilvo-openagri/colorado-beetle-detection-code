@@ -1,6 +1,6 @@
+colormath
 dill
 ipykernel
-joblib
 keras==2.*
 matplotlib
 numpy==1.*

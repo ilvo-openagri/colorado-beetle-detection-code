@@ -30,18 +30,19 @@ python.exe -m pip install -r requirements.txt
 To evaluate an image, use the evaluate.py script.
 
 ```
-usage: evaluate.py [-h] --input path --tensorflow path
+usage: evaluate.py [-h] --input path [--output path] --tensorflow path
 
 Evaluate image(s) from Colorado Beetles
 
 options:
   -h, --help         show this help message and exit
-  --input path       The path to the images
+  --input path       The path to the image
+  --output path      The path where an annotated output image can be stored.
   --tensorflow path  Select the tensorflow version (lite or default)
 ```
 
 ```Powershell
-python.exe evaluate.py --input .\test_images\sectie32.JPG --tensorflow lite
+python.exe evaluate.py --input .\test_images\sectie32.JPG --output .\test_images\sectie32_annotated. JPG --tensorflow lite
 ```
 
 Example output
