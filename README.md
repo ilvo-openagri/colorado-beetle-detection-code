@@ -26,6 +26,13 @@ This file can be used to easily install the dependencies.
 python.exe -m pip install -r requirements.txt
 ```
 
+### Additions for Linux
+
+Additional packages:
+```shell
+apt-get install libgl1
+```
+
 ## Evaluate an image:
 To evaluate an image, use the evaluate.py script.
 

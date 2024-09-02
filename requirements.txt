@@ -9,7 +9,7 @@ pandas
 seaborn
 scikit-image
 scikit-learn
-tensorflow
+tensorflow[and-cuda]
 --extra-index-url https://download.pytorch.org/whl/cu121
 torch==2.3.1
 torchvision==0.18.1

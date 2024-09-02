@@ -46,10 +46,9 @@ class OpenAgriAI:
             self._pipeline_models = {
                 256: keras.models.load_model(constants.MODEL_256),
                 128: keras.models.load_model(constants.MODEL_128),
-                # 64: keras.models.load_model(constants.MODEL_64),
+                64: keras.models.load_model(constants.MODEL_64),
             }
-            self._pipeline_models_sizes = [256, 128]
-            self._pipeline_destination_size = 128
+            self._pipeline_models_sizes = [256, 128, 64]
         elif self._tensorflow_version == TensorFlowVersion.LITE:
             self._pipeline_lite_interpreters = {
                 256: tf.lite.Interpreter(constants.MODEL_LITE_256),
@@ -57,9 +56,9 @@ class OpenAgriAI:
                 64: tf.lite.Interpreter(constants.MODEL_LITE_64),
             }
             self._pipeline_models_sizes = [256, 128, 64]
-            self._pipeline_destination_size = 64
             for pipeline_lite_interpreter in self._pipeline_lite_interpreters.values():
                 pipeline_lite_interpreter.allocate_tensors()
+        self._pipeline_destination_size = self._pipeline_models_sizes[-1]
 
     def _visualise(self,
                    image_name: str,
@@ -163,7 +162,7 @@ class OpenAgriAI:
                 x += piece_size
             y += piece_size
         if len(pieces) != 4:
-            self.logger.info(len(pieces))
+            self.logger.error("Unexpected image split size of %d", len(pieces))
 
         return pieces
 
@@ -367,4 +366,4 @@ if __name__ == '__main__':
     # Initialise and start the OpenAgri AI module:
     ai_module = OpenAgriAI(TensorFlowVersion(script_arguments.tensorflow))
     ai_module.evaluate(image_path=Path(script_arguments.input),
-                       output_path=Path(script_arguments.output))
+                        output_path=Path(script_arguments.output))
