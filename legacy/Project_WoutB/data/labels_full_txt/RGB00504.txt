@@ -1,5 +1,0 @@
-jana.wieme@ugent.be	3553.0	                            148.0	                            34	                            40
-jana.wieme@ugent.be	3727.0	                            1044.0	                            40	                            52
-jana.wieme@ugent.be	4125.0	                            331.5	                            22	                            37
-jana.wieme@ugent.be	4529.0	                            1433.5	                            40	                            31
-jana.wieme@ugent.be	5074.5	                            4055.0	                            29	                            34

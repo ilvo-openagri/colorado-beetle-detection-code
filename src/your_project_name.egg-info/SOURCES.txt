@@ -1,0 +1,15 @@
+MANIFEST.in
+README.md
+__init__.py
+pyproject.toml
+src/openagri_ai/__init__.py
+src/openagri_ai/constants.py
+src/openagri_ai/evaluate.py
+src/openagri_ai/preprocess_training.py
+src/openagri_ai/train.py
+src/openagri_ai/ts2tslite.py
+src/your_project_name.egg-info/PKG-INFO
+src/your_project_name.egg-info/SOURCES.txt
+src/your_project_name.egg-info/dependency_links.txt
+src/your_project_name.egg-info/requires.txt
+src/your_project_name.egg-info/top_level.txt
