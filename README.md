@@ -78,3 +78,43 @@ options:
   --input path   The tensorflow model that needs conversion.
   --output path  The tensorflow lite model destination.
 ```
+
+## Create a python package
+To use the AI model in other projects, we create a python package from the source code.
+The resulting package can be uploaded to the gitlab package manager, to be later used by pip (install).
+
+### Generate the python package
+The description of the python package is done through two files:
+- pyproject.toml: Package descritpion
+- MANIFEST.in: Manifest file which includes/excludes specific files and directories
+
+To generate the python package, execute following commands:
+```
+pip install -q build # Ensures that you have the build dependency in python. Only needs to be run once.
+python -m build # Create the python package
+```
+
+The resulting files can be found under the dist/ directory.
+
+### Deploy the python package to the gitlab repository
+First create deploy tokens to read/write the package repository: https://gitlab.ilvo.be/jbauwens/openagri_ai/-/settings/repository
+To deploy the package, the write_package_registry scope needs to be granted to the deploy key.
+The deploy key needs to be stored in ~/.pypirc.
+
+```
+[distutils]
+index-servers = 
+    ilvo-gitlab-openagri-ai
+
+[ilvo-gitlab-openagri-ai]
+repository = https://gitlab.ilvo.be/api/v4/projects/719/packages/pypi
+username = <deploy-key-name>
+password = <deploy-key-password>
+```
+
+To upload the package to the package repository, execute following command/
+```
+python3 -m twine upload --repository ilvo-gitlab-openagri-ai dist/*
+```
+
+You can only store the package with the same version once. To upload a new version, create a package with a different version.

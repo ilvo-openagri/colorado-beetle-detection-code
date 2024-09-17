@@ -13,4 +13,5 @@ tensorflow[and-cuda]
 --extra-index-url https://download.pytorch.org/whl/cu121
 torch
 torchvision
+twine
 ultralytics
