@@ -1,26 +1,27 @@
 """Module to perform all AI related steps for the OpenAgri project.
 """
 
-import os
-import argparse
-import platform
-import logging
-import time
-from enum import Enum
-from pathlib import Path
-from sklearn.cluster import KMeans
-from skimage.color import deltaE_ciede2000
+from .constants import *
 from colormath.color_conversions import convert_color
 from colormath.color_objects import LabColor, sRGBColor
-import tensorflow as tf
-import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import matplotlib.gridspec
-import keras
-import constants
+from enum import Enum
+from pathlib import Path
+from skimage.color import deltaE_ciede2000
+from sklearn.cluster import KMeans
 from ultralytics import YOLO
+import argparse
+import cv2
+import keras
+import logging
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+import multiprocessing
+import numpy as np
+import os
+import platform
+import tensorflow as tf
+import time
+import typing
 
 # Got an error that the physical cores could not be identified
 # This code removes the error, but might impact performance?
@@ -52,20 +53,20 @@ class OpenAgriAI:
         self.logger.setLevel(logging.INFO)
 
         self._model_version = model_version
+        self._tensorflow_version = tensorflow_version
         if self._model_version == ModelVersion.PIPELINE:
-            self._tensorflow_version = tensorflow_version
             if self._tensorflow_version == TensorFlowVersion.DEFAULT:
                 self._pipeline_models = {
-                    256: keras.models.load_model(constants.MODEL_256),
-                    128: keras.models.load_model(constants.MODEL_128),
-                    64: keras.models.load_model(constants.MODEL_64),
+                    256: keras.models.load_model(MODEL_256),
+                    128: keras.models.load_model(MODEL_128),
+                    64: keras.models.load_model(MODEL_64),
                 }
                 self._pipeline_models_sizes = [256, 128, 64]
             elif self._tensorflow_version == TensorFlowVersion.LITE:
                 self._pipeline_lite_interpreters = {
-                    256: tf.lite.Interpreter(constants.MODEL_LITE_256),
-                    128: tf.lite.Interpreter(constants.MODEL_LITE_128),
-                    64: tf.lite.Interpreter(constants.MODEL_LITE_64),
+                    256: tf.lite.Interpreter(MODEL_LITE_256),
+                    128: tf.lite.Interpreter(MODEL_LITE_128),
+                    64: tf.lite.Interpreter(MODEL_LITE_64),
                 }
                 self._pipeline_models_sizes = [256, 128, 64]
                 for (
@@ -74,7 +75,12 @@ class OpenAgriAI:
                     pipeline_lite_interpreter.allocate_tensors()
             self._pipeline_destination_size = self._pipeline_models_sizes[-1]
         elif self._model_version == ModelVersion.YOLO:
-            self._yolo_model = YOLO(constants.YOLO)
+            if self._tensorflow_version == TensorFlowVersion.DEFAULT:
+                self._yolo_model = YOLO(MODEL_YOLO, task="detect")
+            else:
+                self._yolo_model = YOLO(MODEL_YOLO_TFLITE, task="detect")
+
+        self._gpu_workload_callback = None
 
     def _visualise(
         self,
@@ -145,6 +151,7 @@ class OpenAgriAI:
         piece_size: int,
         x_offset: int = 0,
         y_offset: int = 0,
+        margin: int = 0,
     ) -> list:
         """Split image into equal sized pieces
 
@@ -153,6 +160,7 @@ class OpenAgriAI:
             piece_size (int): Dimension of each piece
             x_offset (int): X offset to the center of the piece
             y_offset (int): Y offset to the center of the piece
+            margin (int): Some margin around the image
 
         Returns:
             list: The equal sized pieces in which the image was split.
@@ -174,7 +182,10 @@ class OpenAgriAI:
                 y_end = y + piece_size if y + piece_size < y_max_dim else y_max_dim
 
                 # Cut out a piece
-                img_piece = source_image[y:y_end, x:x_end]
+                img_piece = source_image[
+                    max(y - margin, 0) : y_end + margin,
+                    max(x - margin, 0) : x_end + margin,
+                ]
                 pieces.append(
                     {
                         "image": img_piece,
@@ -201,33 +212,35 @@ class OpenAgriAI:
         Returns:
             list[np.ndarray]: Matching image fragments of 512x512
         """
-        # Reshape the input image. Each pixel will represent on 512x512 piece of the source image
-        start_reshape = time.time()
+        # Split the image into its RGB components
+        b, g, r = cv2.split(source_image)
+
+        # Convert channels to float to avoid integer division issues
+        r = r.astype(np.float32)
+        g = g.astype(np.float32)
+        b = b.astype(np.float32)
+
+        # Avoid division by zero by setting zero values in g to a small number
+        g[g == 0] = 1
+        # Apply the formula (r + b) / g
+        result = (r + b) / g
+
+        # Convert the result back to uint8
+
         resized_image = cv2.resize(
-            source_image,
-            (source_image.shape[1] // 256, source_image.shape[0] // 256),
+            result,
+            (result.shape[1] // 256, result.shape[0] // 256),
             interpolation=cv2.INTER_AREA,
         )
-        (h, w, c) = resized_image.shape
-        flat_image = resized_image.reshape(h * w, c)
-        reshape_time = time.time() - start_reshape
 
-        # Predict the parts the kmeans classification:
+        (h, w) = resized_image.shape
+        flat_image = resized_image.reshape(h * w, 1)
         kmeans_model = KMeans(n_clusters=2)
         cluster_labels = kmeans_model.fit_predict(flat_image)
-        color_columns = kmeans_model.cluster_centers_.round(0).astype(int)
         clustered_image = np.reshape(cluster_labels, (h, w))
 
         # Determine the cluster with a green color:
-        lab_green = convert_color(sRGBColor(0, 128, 0), LabColor).get_value_tuple()
-        lab_cluster_colors = [
-            convert_color(sRGBColor(*rgb_color), LabColor).get_value_tuple()
-            for rgb_color in color_columns
-        ]
-        delta_e_values = np.array(
-            [deltaE_ciede2000(lab_color, lab_green) for lab_color in lab_cluster_colors]
-        )
-        green_cluster = np.argmin(delta_e_values)
+        green_cluster = np.argmin(kmeans_model.cluster_centers_)
 
         # Create the resultset
         result_set = []
@@ -258,13 +271,13 @@ class OpenAgriAI:
         Returns:
             bool: Return if the image matches the pipeline stage
         """
-        filter_result = False
+        filter_result = 0
         size = len(source_image)
         start_pred = time.time()
         reshaped_image = tf.reshape(source_image, [1, size, size, 3])
         if self._tensorflow_version == TensorFlowVersion.DEFAULT:
             prediction = self._pipeline_models[size].predict(reshaped_image, verbose=0)
-            filter_result = prediction[0][1] > 0.5
+            filter_result = prediction[0][1]
         elif self._tensorflow_version == TensorFlowVersion.LITE:
             interpreter = self._pipeline_lite_interpreters[size]
             interpreter.set_tensor(
@@ -275,60 +288,111 @@ class OpenAgriAI:
             filter_result = interpreter.get_tensor(
                 tensor_index=interpreter.get_output_details()[0]["index"]
             )
-            filter_result = filter_result[0][1] > 0.9
+            filter_result = filter_result[0][1]
 
         pred_time = time.time() - start_pred
 
         return filter_result
 
-    def evaluate(self, image_path: Path, output_path: Path):
+    def yolo_mp_worker(
+        self,
+        _worker_index: int,
+        model: str,
+        confidence: float,
+        task_queue: multiprocessing.Queue,
+        result_queue: multiprocessing.Queue,
+    ):
+        yolo_model = YOLO(model, task="detect")
+        while True:
+            # Get a new task (an image) from the task queue
+            image = task_queue.get()
+
+            if image is None:  # If `None` is received, terminate the worker
+                break
+
+            yolo_match = yolo_model.predict(
+                image["image"], conf=confidence, verbose=False
+            )
+            yolo_results = []
+            for match in yolo_match:
+                if match.summary():
+                    x, y, w, h = match.boxes.xywh[0]
+                    yolo_results.append(
+                        {
+                            "x": image["center"]["x"] - 128 + int(x),
+                            "y": image["center"]["y"] - 128 + int(y),
+                            "w": int(w),
+                            "h": int(h),
+                            "confidence": float(match.boxes.conf[0]),
+                        }
+                    )
+            result_queue.put(yolo_results)
+        result_queue.put(None)
+        while result_queue.qsize():
+            time.sleep(0.1)
+        return 0
+
+    def register_gpu_workload_callback(self, callback: typing.Callable):
+        """Register a callback which is called when starting and stopping a GPU workload
+
+        Args:
+            callback (typing.Callacble): The callback function
+        """
+        self._gpu_workload_callback = callback
+
+    def evaluate(
+        self, image_name: str, image_file: cv2.typing.MatLike, output_path: Path
+    ):
         """Evaluate the images from the file path against the openagri AI model
 
         Args:
-            image_path (Path): Path containing the evaluation image
+            image_name (str): Name of the source image.
+            image_file (cv2.typing.MatLike): Source image
             output_path (Path): Path to the output path, where an annotated image will be stored.
         """
-        self.logger.info("Start evaluation on path %s", image_path)
-        self.logger.info("Reading image into memory")
-        input_image = cv2.imread(image_path)
-        input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2RGB)
+        self.logger.info("Start evaluation")
 
         # Crop the image:
-        x_size = input_image.shape[0] // 256
-        y_size = input_image.shape[1] // 256
+        x_size = image_file.shape[0] // 256
+        y_size = image_file.shape[1] // 256
         self.logger.info("Crop image to %dx%d", x_size * 256, y_size * 256)
-        input_image = input_image[: x_size * 256, : y_size * 256]
+        image_file = image_file[: x_size * 256, : y_size * 256]
 
         # Filter out the leaves through kmeans clustering:
         self.logger.info("Start kmeans filtering to extract the leaves")
-        leave_images = self._filter_kmeans(input_image)
+        leave_images = self._filter_kmeans(image_file)
         self.logger.info(
             "Kmeans matches %d out of %d image pieces",
             len(leave_images),
             x_size * y_size,
         )
 
-        # We do the beetle matching based on three different models:
-        # - input: 256x256 images
-        # - input: 128x128 images
-        # - input: 64x64 images
-        # Only the pieces that passed the previous stage, are parsed to the next model.
-        # The result will be the matching 64x64 pieces matching the Colorado Beetle.
         active_image_set = leave_images
         matching_image_set = []
         matching_images_per_resolution = {}
         if self._model_version == ModelVersion.PIPELINE:
+            # We do the beetle matching based on three different models:
+            # - input: 256x256 images
+            # - input: 128x128 images
+            # - input: 64x64 images
+            # Only the pieces that passed the previous stage, are parsed to the next model.
+            # The result will be the matching 64x64 pieces matching the Colorado Beetle.
             # Do some preprocessing:
             for active_image in active_image_set:
                 active_image["image"] = (
                     np.array(active_image["image"], dtype=np.float32) / 255
                 )
+
+            if self._gpu_workload_callback is not None:
+                self._gpu_workload_callback(True)
             for pipeline_model in self._pipeline_models_sizes:
                 matching_image_set = []
+                self.logger.info("Starting pipeline")
                 for active_image in active_image_set:
-                    pipeline_match = self._filter_pipeline(active_image["image"])
-                    if not pipeline_match:
+                    pipeline_confidence = self._filter_pipeline(active_image["image"])
+                    if pipeline_confidence < 0.5:
                         continue
+                    active_image["confidence"] = pipeline_confidence
                     matching_image_set.append(active_image)
                 self.logger.info(
                     "Pipeline matches %d out of %d image pieces (size %d)",
@@ -355,36 +419,83 @@ class OpenAgriAI:
                             )
                         )
                     active_image_set = active_image_set_split
+            if self._gpu_workload_callback is not None:
+                self._gpu_workload_callback(False)
         elif self._model_version == ModelVersion.YOLO:
             matching_images_per_resolution[64] = []
-            for active_image in active_image_set:
-                yolo_match = self._yolo_model.predict(
-                    active_image["image"], conf=0.33, verbose=False
+            task_queue = multiprocessing.Queue()
+            result_queue = multiprocessing.Queue()
+            workers = []
+            PROCESS_COUNT = 4
+            for worker_index in range(PROCESS_COUNT):
+                p = multiprocessing.Process(
+                    target=self.yolo_mp_worker,
+                    args=(
+                        worker_index,
+                        MODEL_YOLO_TFLITE,
+                        0.33,
+                        task_queue,
+                        result_queue,
+                    ),
                 )
-                for match in yolo_match:
-                    if match.summary():
-                        x, y, w, h = match.boxes.xywh[0]
-                        x, y, w, h = int(x), int(y), int(w), int(h)
-                        matching_images_per_resolution[64].append(
-                            {
-                                # "image": None,
-                                "center": {
-                                    "x": active_image["center"]["x"] - 128 + int(x),
-                                    "y": active_image["center"]["y"] - 128 + int(y),
-                                },
-                                "confidence": float(match.boxes.conf[0]),
-                            }
-                        )
+                p.start()
+                workers.append(p)
+
+            for active_image in active_image_set:
+                if self._gpu_workload_callback is not None:
+                    self._gpu_workload_callback(True)
+                task_queue.put(active_image)
+                if self._gpu_workload_callback is not None:
+                    self._gpu_workload_callback(False)
+            self.logger.info("Waiting for workers to finish")
+            # Stop all workers by sending `None` to each
+            for _ in workers:
+                task_queue.put(None)
+
+            # Collect the results
+            processes_finished = 0
+            results = []
+            while processes_finished < PROCESS_COUNT:
+                result = result_queue.get()
+                if result is None:
+                    processes_finished += 1
+                    continue
+                results.extend(result)
+
+            task_queue.close()
+            task_queue.join_thread()
+            result_queue.close()
+            result_queue.join_thread()
+
+            for p in workers:
+                p.join()
+
+            for result in results:
+                matching_images_per_resolution[64].append(
+                    {
+                        # "image": None,
+                        "center": {
+                            "x": result["x"],
+                            "y": result["y"],
+                        },
+                        "confidence": result["confidence"],
+                    }
+                )
 
         self.logger.info("Completed")
         if output_path.name:
             self._visualise(
-                image_name=image_path.name,
-                source_image=input_image,
+                image_name=image_name,
+                source_image=image_file,
                 output_image_path=output_path,
                 leave_images=leave_images,
                 model_images=matching_images_per_resolution,
             )
+            self.logger.info("Written to %s", output_path)
+        else:
+            self.logger.error("No output name: %s", output_path)
+
+        return matching_images_per_resolution[64]
 
 
 if __name__ == "__main__":
@@ -439,7 +550,10 @@ if __name__ == "__main__":
         ModelVersion(script_arguments.model),
         TensorFlowVersion(script_arguments.tensorflow),
     )
+    input_image = cv2.imread(Path(script_arguments.input))
+    input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2RGB)
     ai_module.evaluate(
-        image_path=Path(script_arguments.input),
+        image_name="",
+        image_file=input_image,
         output_path=Path(script_arguments.output),
     )

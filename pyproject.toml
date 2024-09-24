@@ -1,13 +1,36 @@
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "OpenAgriAiModule"
-version = "V1.0"
+version = "V1.0.7"
 readme = "README.md"
 description = "OpenAgri AI module to detect Colorado Beetles within images"
-authors = [
-    { name = "Jan Bauwens", email = "jan.bauwens@ilvo.vlaanderen.be" }
-]
-dependencies = ["requests"]  # Specify your dependencies here
+authors = ["Jan Bauwens <jan.bauwens@ilvo.vlaanderen.be>"]
+packages = [{include = "openagri_ai", from="src"}]
+exclude = ["**/__pycache__"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+colormath = "*"
+dill = "*"
+ipykernel = "*"
+keras = "2.*"
+matplotlib = "*"
+numpy = "1.*"
+opencv-python = "*"
+pandas = "*"
+seaborn = "*"
+scikit-image = "*"
+scikit-learn = "*"
+tensorflow = { "version" = "*", extras = ["and-cuda"] }
+twine = "*"
+torch = { version = "*", source="torch"}
+torchvision = { version = "*", source="torch"}
+ultralytics = "*"
+
+[[tool.poetry.source]]
+name = "torch"
+url = "https://download.pytorch.org/whl/cu121"
+secondary = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

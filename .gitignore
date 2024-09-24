@@ -2,8 +2,12 @@ __pycache__
 .pypirc
 .venv
 .vscode
+*.npy
+*.pyc
+*\.egg-info*
 dist
+pyproject.previous.toml
 runs
 test_images
+trained_models
 trainingset
-*\.egg-info*

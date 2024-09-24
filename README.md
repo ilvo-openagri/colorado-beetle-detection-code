@@ -62,8 +62,6 @@ Example output
 [INFO OpenAgriAIModule @ 2024-08-28 15:00:29,367] Completed
 ```
 
-
-
 ## Transform the tensorflow model to tensorflow lite:
 Tensorflow lite models are much more efficient on edge devices such as the raspberry PI.
 To translate a model, use the ts2tslite.py script.
@@ -96,8 +94,8 @@ python -m build # Create the python package
 
 The resulting files can be found under the dist/ directory.
 
-### Deploy the python package to the gitlab repository
-First create deploy tokens to read/write the package repository: https://gitlab.ilvo.be/jbauwens/openagri_ai/-/settings/repository
+### Deploy the python package to the gitlab package registry
+First create deploy tokens to read/write the package registry: https://gitlab.ilvo.be/jbauwens/openagri_ai/-/settings/repository
 To deploy the package, the write_package_registry scope needs to be granted to the deploy key.
 The deploy key needs to be stored in ~/.pypirc.
 
@@ -112,9 +110,16 @@ username = <deploy-key-name>
 password = <deploy-key-password>
 ```
 
-To upload the package to the package repository, execute following command/
+To upload the package to the package registry, execute following command/
 ```
 python3 -m twine upload --repository ilvo-gitlab-openagri-ai dist/*
+
+# Output:
+Uploading distributions to https://gitlab.ilvo.be/api/v4/projects/719/packages/pypi
+Uploading OpenAgriAiModule-1.0-py3-none-any.whl
+100% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.4/16.4 kB • 00:00 • 591.0 kB/s
+Uploading openagriaimodule-1.0.tar.gz
+100% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.8/14.8 kB • 00:00 • ?
 ```
 
 You can only store the package with the same version once. To upload a new version, create a package with a different version.
