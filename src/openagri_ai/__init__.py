@@ -1,1 +1,2 @@
-from .evaluate import OpenAgriAI, ModelVersion, TensorFlowVersion
+from .model import YoloModel
+from .model.version import ModelVersion, TensorFlowVersion
