@@ -64,9 +64,9 @@ class OpenAgriAI:
                 self._pipeline_models_sizes = [256, 128, 64]
             elif self._tensorflow_version == TensorFlowVersion.LITE:
                 self._pipeline_lite_interpreters = {
-                    256: tf.lite.Interpreter(MODEL_LITE_256),
-                    128: tf.lite.Interpreter(MODEL_LITE_128),
-                    64: tf.lite.Interpreter(MODEL_LITE_64),
+                    256: tf.lite.Interpreter(MODEL_LITE_256, num_threads=4),
+                    128: tf.lite.Interpreter(MODEL_LITE_128, num_threads=4),
+                    64: tf.lite.Interpreter(MODEL_LITE_64, num_threads=4),
                 }
                 self._pipeline_models_sizes = [256, 128, 64]
                 for (
