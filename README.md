@@ -26,6 +26,23 @@ This file can be used to easily install the dependencies.
 python.exe -m pip install -r requirements.txt
 ```
 
+
+### Using the HAILO shield (Raspberry PI AI kit)
+Install the necessary hailo dependencies.
+```
+sudo apt install hailo-full
+```
+
+Download the hailort python wheel from the hailo developer zone to the lib directory.
+
+```
+(.venv) jbauwens@rpiILVO:~/Code/openagri_ai $ ll lib/
+total 8440
+drwxr-xr-x  3 jbauwens jbauwens    4096 Oct  3 15:52 .
+drwxr-xr-x 11 jbauwens jbauwens    4096 Oct  3 15:18 ..
+-rwxr-xr-x  1 jbauwens jbauwens 8626214 Oct  3 15:51 hailort-4.18.0-cp311-cp311-linux_aarch64.whl
+```
+
 ### Additions for Linux
 
 Additional packages:

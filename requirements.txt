@@ -3,7 +3,7 @@ dill
 ipykernel
 keras==2.*
 matplotlib
-numpy==1.*
+numpy==1.23.5
 opencv-python
 pandas
 PyQt6
@@ -16,5 +16,4 @@ torch
 torchvision
 twine
 ultralytics
-lib/hailo_dataflow_compiler-3.29.0-py3-none-linux_x86_64.whl
-lib/hailo_model_zoo-2.13.0-py3-none-any.whl
+# lib/hailort-4.18.0-cp311-cp311-linux_aarch64.whl
