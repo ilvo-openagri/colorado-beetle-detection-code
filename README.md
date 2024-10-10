@@ -146,21 +146,21 @@ Make sure that you put your trained YOLOv8 .pt file into this directory.
 
 ### Prepare your environment for the HAILO AI shield:
 Activate the virtual environment, and install the requirements
-"""
+```
 cd openagri-ai
 python3 -m venv .venv
 python3 -m pip install -r requirements.txt
-"""
+```
 
 Clone the hailo model zoo repository
-"""
+```
 https://github.com/hailo-ai/hailo_model_zoo.git
-"""
+```
 
 Link the git repository into your virtual environment. Dirty, but the code did not seem to work otherwise (file not found exception). Hopefully this will be patched in a future release of the Hailo Model Zoo.
-"""
+```
 ln -sf /home/jbauwens/Documents/Code/hailo_model_zoo/hailo_model_zoo/cfg/ /home/jbauwens/Documents/Code/openagri_ai/.venv/lib/python3.10/site-packages/hailo_model_zoo/
-"""
+```
 
 #### Update the Hailo Model Zoo parameters
 The basic Hailo Model Zoo parameters might not be ok if you trained the model yourself. Please check the output layers, for example through https://netron.app/.
@@ -173,7 +173,7 @@ The output layers for the newly created model were:
 - yolo256/conv63
 
 Following files need to be adapted:
-"""
+```
 (.venv) jbauwens@tv115ljan:~/Documents/Code/hailo_model_zoo$ git diff hailo_model_zoo/cfg/base/yolo.yaml
 diff --git a/hailo_model_zoo/cfg/base/yolo.yaml b/hailo_model_zoo/cfg/base/yolo.yaml
 index f7d458f..32a8f2a 100644
@@ -246,18 +246,18 @@ index 3d7747e..e8cbcf9 100644
 -                       "reg_layer": "conv62",
 +                       "reg_layer": "conv60",
                         "cls_layer": "conv63"
-"""
+```
 
 
 #### Create a HEF file
 To use the model on a HAILO AI shield, you need to create a HEF file.
 Export your YOLO (yolov8s) model to ONNX format:
-"""
+```
 yolo export model=model.pt imgsz=256 format=onnx opset=11
-"""
+```
 
 Afterwards you can convert it to a HEF format:
-"""
+```
 hailomz compile --ckpt ~/Documents/Code/openagri_ai/trained_models/model_yolov8_256/model.onnx --calib-path ~/Documents/Code/openagri_ai/trainingset/256by256/test/images/ --yaml ./hailo_model_zoo/cfg/networks/yolov8s.yaml --classes 1 --hw-arch hailo8l
-"""
+```
 
