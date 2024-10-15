@@ -6,6 +6,7 @@ class ModelVersion(Enum):
 
     PIPELINE = "PIPELINE"
     YOLO = "YOLO"
+    HAILO = "HAILO"
 
 
 class TensorFlowVersion(Enum):
