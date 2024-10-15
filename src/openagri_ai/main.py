@@ -8,6 +8,9 @@ from .model import YoloModel, PipelineModel
 import argparse
 import cv2
 import logging
+import matplotlib
+
+matplotlib.use("tkagg")
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -41,20 +44,28 @@ def visualise(
     ax.axis("off")
 
     # Draw boxes around the identified leaves:
-    size = len(result.leaves[0].image)
-    for leave in result.leaves:
-        rect = patches.Rectangle(
-            xy=(
-                leave.center_x - size / 2,
-                leave.center_y - size / 2,
-            ),
-            width=size,
-            height=size,
-            edgecolor="aqua",
-            facecolor="aqua",
-            alpha=0.25,
-        )
-        ax.add_patch(rect)
+    if result.leaves:
+        size = len(result.leaves[0].image)
+        for leave in result.leaves:
+            rect = patches.Rectangle(
+                xy=(
+                    leave.center_x - size / 2,
+                    leave.center_y - size / 2,
+                ),
+                width=size,
+                height=size,
+                edgecolor="aqua",
+                facecolor="aqua",
+                alpha=0.25,
+            )
+            ax.add_patch(rect)
+            if leave.annotation:
+                ax.text(
+                    rect.get_x(),
+                    rect.get_y() + 25,
+                    leave.annotation,
+                    fontsize=5,
+                )
 
     # Draw boxes around the model matches:
     for model_size, model_matches in result.beetles.items():
@@ -159,8 +170,7 @@ if __name__ == "__main__":
         ai_model = PipelineModel(ai_tensorflow_version, yolo_model_files, 1, 0.6)
 
     # Perform the evaluation
-    for _ in range(2):
-        model_result = ai_model.evaluate(input_image)
+    model_result = ai_model.evaluate(input_image)
 
     # Write the results to an image for visualisation:
     output_path = Path(script_arguments.output)

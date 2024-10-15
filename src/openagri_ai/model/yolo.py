@@ -87,25 +87,25 @@ class YoloModel(_BaseAIModel):
         leave_images = self._collect_leaves(image_file, self._output_dimension)
         matches = []
 
-        if not self._mp_workers:
-            for active_image in leave_images:
-                matches.extend(
-                    self._mp_worker_work(
-                        self._yolo_model, active_image, self._confidence
-                    )
-                )
-        else:
-            for active_image in leave_images:
-                self._mp_task_queue.put(active_image)
+        # if not self._mp_workers:
+        #     for active_image in leave_images:
+        #         matches.extend(
+        #             self._mp_worker_work(
+        #                 self._yolo_model, active_image, self._confidence
+        #             )
+        #         )
+        # else:
+        #     for active_image in leave_images:
+        #         self._mp_task_queue.put(active_image)
 
-            self.logger.info("Waiting for workers to finish")
+        #     self.logger.info("Waiting for workers to finish")
 
-            # Collect the results
-            task_done_count = 0
-            while task_done_count < len(leave_images):
-                process_result = self._mp_result_queue.get()
-                task_done_count += 1
-                matches.extend(process_result)
+        #     # Collect the results
+        #     task_done_count = 0
+        #     while task_done_count < len(leave_images):
+        #         process_result = self._mp_result_queue.get()
+        #         task_done_count += 1
+        #         matches.extend(process_result)
 
         matching_image_set = []
         for match in matches:

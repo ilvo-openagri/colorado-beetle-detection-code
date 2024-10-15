@@ -11,6 +11,7 @@ class AiResult:
     center_x: int
     center_y: int
     confidence: float
+    annotation: str = ""
 
 
 @dataclasses.dataclass
