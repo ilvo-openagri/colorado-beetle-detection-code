@@ -1,5 +1,5 @@
 from .result import AiResult, ModelResult
-from ..leave_filter import LeaveFilter, KmeansFilter
+from ..leave_filter import LeaveFilter, KmeansFilter, SegmentationFilter
 from abc import ABC, abstractmethod
 import cv2
 import logging
@@ -12,7 +12,7 @@ class _BaseAIModel(ABC):
     def __init__(self):
         self.logger = logging.getLogger(f"OpenAgriAIModule_{__name__}")
         self.logger.setLevel(logging.INFO)
-        self.leave_filter = LeaveFilter()
+        self.leave_filter = SegmentationFilter()
 
     def _split_image(
         self,
