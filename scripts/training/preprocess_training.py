@@ -1,8 +1,8 @@
+from joblib import Parallel, delayed
+from pathlib import Path
 import argparse
 import glob
-from joblib import Parallel, delayed
 import json
-from pathlib import Path
 import logging
 import math
 import numpy as np
@@ -100,10 +100,12 @@ def extract_labels(label_format: str, label_file: Path):
 def preprocess(
     training_input_path: Path,
     training_output_path: Path,
+    labels_path: Path,
     format: str,
     image_size: int,
     store_empty: bool = True,
     split: list = [0.7, 0.15, 0.15],
+    split_images: bool = True,
     split_names: list = ["train", "validate", "test"],
 ):
     logger = logging.getLogger("PREPROCESS_TRAINING")
@@ -113,7 +115,8 @@ def preprocess(
         sys.exit(1)
 
     # Detect the number of image files:
-    files_in_dir = len(os.listdir(f"{training_input_path}/images"))
+    files = glob.glob(f"{training_input_path}/*.JPG")
+    files_in_dir = len(files)
 
     # Determine the split count, on which the files need to be divided over the three directories:
     split_value = 0
@@ -122,12 +125,8 @@ def preprocess(
         split_value = split[split_index]
 
     # Read the files one by one
-    for image_file_index, image_file in enumerate(
-        os.listdir(f"{training_input_path}/images")
-    ):
-        image_path = Path(f"{training_input_path}/images/{image_file}")
-        if image_path.suffix.lower() not in (".jpg", ".png"):
-            continue
+    for image_file_index, image_file in enumerate(files):
+        image_path = Path(image_file)
 
         logger.info("%d/%d: %s", image_file_index + 1, files_in_dir, image_file)
         split_index = 0
@@ -136,15 +135,24 @@ def preprocess(
 
         # Extract the labels belonging to this image
         labels = []
-        matching_files = glob.glob(f"{training_input_path}/labels/{image_path.stem}.*")
+        matching_files = glob.glob(f"{labels_path}/{image_path.stem}.*")
         if matching_files:
             label_file = matching_files[0]
             labels = extract_labels(format, label_file)
 
         # Split the image in pieces of image_size x image_siwe
-        result_images = split_image(
-            image_path.stem, skimage.io.imread(image_path), labels, image_size
-        )
+        if split_images:
+            result_images = split_image(
+                image_path.stem, skimage.io.imread(image_path), labels, image_size
+            )
+        else:
+            result_images = [
+                {
+                    "symlink": image_path,
+                    "labels": labels,
+                    "name": image_path.stem,
+                },
+            ]
 
         # Create the destination directories:
         os.makedirs(
@@ -158,11 +166,21 @@ def preprocess(
         for result_image in result_images:
             if not store_empty and len(result_image["labels"]) == 0:
                 continue
-            skimage.io.imsave(
-                f"{training_output_path}/{split_names[split_index]}/images/{result_image['name']}.JPG",
-                result_image["image"],
-            )
-            if result_image["image"].shape != (image_size, image_size, 3):
+            if "image" in result_image:
+                skimage.io.imsave(
+                    f"{training_output_path}/{split_names[split_index]}/images/{result_image['name']}.JPG",
+                    result_image["image"],
+                )
+            else:
+                os.symlink(
+                    src=f"{os.getcwd()}/{result_image['symlink']}",
+                    dst=f"{os.getcwd()}/{training_output_path}/{split_names[split_index]}/images/{result_image['name']}.JPG",
+                )
+            if split_images and result_image["image"].shape != (
+                image_size,
+                image_size,
+                3,
+            ):
                 logger.error(
                     "Exception on the image piece size. Got %s",
                     result_image["image"].shape,
@@ -202,12 +220,20 @@ if __name__ == "__main__":
         help="Output path of training data",
     )
     parser.add_argument(
+        "--labels",
+        dest="labels",
+        metavar="path",
+        required=True,
+        help="Path of the training labels",
+    )
+    parser.add_argument(
         "--format",
         dest="format",
         metavar="path",
         default="YOLO",
         help="Format of the training data",
     )
+
     parser.add_argument(
         "--size",
         dest="size",
@@ -215,13 +241,19 @@ if __name__ == "__main__":
         default=640,
         help="Dimension of the output images",
     )
+    feature_parser = parser.add_mutually_exclusive_group(required=False)
+    feature_parser.add_argument("--split", dest="split", action="store_true")
+    feature_parser.add_argument("--no-split", dest="split", action="store_false")
+    parser.set_defaults(feature=True)
     script_arguments = parser.parse_args()
 
     # Perform the conversion:
     preprocess(
         training_input_path=Path(script_arguments.input),
         training_output_path=Path(script_arguments.output),
+        labels_path=Path(script_arguments.labels),
         format=script_arguments.format,
         store_empty=False,
         image_size=script_arguments.size,
+        split_images=script_arguments.split,
     )
