@@ -14,6 +14,10 @@ class SegmentationFilter:
     ):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
+        self._model = YOLO(
+            "/home/jbauwens/Documents/Code/openagri_ai/runs/segment/yolov8n_segmentation_100e6/weights/best.pt"
+        )
+        self._model("test_images/sectie32.JPG")
 
     def filter(self, source_image: np.ndarray, dimension: int) -> list[np.ndarray]:
         """Do a classification to identify the leaves vs soil
@@ -33,21 +37,17 @@ class SegmentationFilter:
         )
 
         # 1. First perform segmentation to identify the leaves:
-        # Load a model
-        model = YOLO(
-            "/home/jbauwens/Documents/Code/openagri_ai/runs/segment/yolov8n_segmentation_100e6/weights/best.pt"
-        )  # load a custom model
-
-        # Predict with the model
-        results = model(
-            "/home/jbauwens/Documents/Code/openagri_ai/test_images/DCS05185.JPG",
-        )
+        self.logger.info("Performing segmentation")
+        results = self._model(source_image)
+        self.logger.info("Create mask")
         leave_mask = np.zeros(source_image.shape[:2], np.uint8)
         for result in results:
-            for ci, c in enumerate(result):
+            for c in result:
                 contour = c.masks.xy.pop().astype(np.int32).reshape(-1, 1, 2)
                 cv2.drawContours(leave_mask, [contour], -1, (255, 255, 255), cv2.FILLED)
-        show_image(leave_mask)
+        self.logger.info("Done")
+        source_image = cv2.bitwise_and(source_image, source_image, mask=leave_mask)
+        # show_image(source_image)
 
         # 2. Extract the images containing enough green:
         for x_index in range(grid_dimension[0]):
@@ -67,25 +67,22 @@ class SegmentationFilter:
                 )
                 green_hits = 0
                 for pxl in relevant_pixels:
-                    try:
-                        greeness = (float(pxl[0]) + float(pxl[2])) / float(pxl[1])
-                        if greeness < self.green_cutoff_value:
-                            green_hits += 1
-                    except ZeroDivisionError:
+                    if all(i == 0 for i in pxl):
                         continue
-                if green_hits <= 1:
+                    green_hits += 1
+                if green_hits == 0:
                     continue
 
-                # ai_result = AiResult(
-                #     image=source_image[
-                #         x_coordinate : x_coordinate + dimension,
-                #         y_coordinate : y_coordinate + dimension,
-                #     ],
-                #     center_x=y_coordinate + dimension // 2,
-                #     center_y=x_coordinate + dimension // 2,
-                #     confidence=0,
-                # )
+                ai_result = AiResult(
+                    image=source_image[
+                        x_coordinate : x_coordinate + dimension,
+                        y_coordinate : y_coordinate + dimension,
+                    ],
+                    center_x=y_coordinate + dimension // 2,
+                    center_y=x_coordinate + dimension // 2,
+                    confidence=0,
+                )
 
-                # result_set.append(ai_result)
+                result_set.append(ai_result)
 
         return result_set

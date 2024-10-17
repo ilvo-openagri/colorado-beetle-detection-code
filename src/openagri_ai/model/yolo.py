@@ -64,7 +64,10 @@ class YoloModel(_BaseAIModel):
         self, model: YOLO, image_description: AiResult, confidence: float
     ) -> list:
         yolo_match = model.predict(
-            image_description.image, conf=confidence, verbose=False, device=self._device
+            image_description.image,
+            conf=confidence,
+            verbose=False,
+            device=self._device,
         )
         yolo_results = []
         for match in yolo_match:

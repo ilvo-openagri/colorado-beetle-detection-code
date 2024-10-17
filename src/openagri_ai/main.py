@@ -145,8 +145,7 @@ if __name__ == "__main__":
     ai_model_version = ModelVersion(script_arguments.model)
     ai_tensorflow_version = TensorFlowVersion(script_arguments.tensorflow)
     input_path = Path(script_arguments.input)
-    input_image = cv2.imread(input_path)
-    input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2RGB)
+    input_image = cv2.imread(input_path.as_posix())
 
     # Select the model
     ai_model = None
@@ -177,7 +176,7 @@ if __name__ == "__main__":
     if output_path.name:
         visualise(
             image_name=input_path.name,
-            source_image=input_image,
+            source_image=cv2.cvtColor(input_image, cv2.COLOR_BGR2RGB),
             output_image_path=output_path,
             result=model_result,
         )
