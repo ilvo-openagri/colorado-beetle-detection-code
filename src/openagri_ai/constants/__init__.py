@@ -18,3 +18,6 @@ MODEL_YOLO_TFLITE = "./trained_models/yolo256_saved_model/yolo256_float32.tflite
 
 MODEL_CLASS_NCNN = "./trained_models/model_yolov8n_segmentation/model_ncnn_model/"
 MODEL_CLASS_PYTORCH = "./trained_models/model_yolov8n_segmentation/model.pt"
+
+MODEL_HAILO_256 = "./trained_models/model_yolov8n_256/model.hef"
+MODEL_HAILO_640 = "./trained_models/model_yolov8n_640/model.hef"

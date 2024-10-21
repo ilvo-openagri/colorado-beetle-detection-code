@@ -1,5 +1,7 @@
 from .base import _BaseAIModel
 from .result import AiResult, ModelResult
+from ..settings import config
+from ..constants import MODEL_HAILO_256, MODEL_HAILO_640
 import platform
 
 if platform.machine() == "aarch64":
@@ -11,8 +13,6 @@ if platform.machine() == "aarch64":
         ConfigureParams,
         InputVStreamParams,
         OutputVStreamParams,
-        InputVStreams,
-        OutputVStreams,
         FormatType,
     )
 import cv2
@@ -25,14 +25,17 @@ class HailoModel(_BaseAIModel):
     def __init__(self, confidence: float):
         super().__init__()
         self._confidence = confidence
-        self._output_dimension = 640
+        self._output_dimension = config.DETECTION_MODEL_DIM
 
         # The target can be used as a context manager ("with" statement) to ensure it's released on time.
         # Here it's avoided for the sake of simplicity
         self.target = VDevice()
 
         # Loading compiled HEFs to device:
-        hef_path = "trained_models/model_yolov8n_640/model.hef"
+        if self._output_dimension == 256:
+            hef_path = MODEL_HAILO_256
+        else:
+            hef_path = MODEL_HAILO_640
         self.hef = HEF(hef_path)
 
         # Configure network groups

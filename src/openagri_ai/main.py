@@ -148,27 +148,12 @@ if __name__ == "__main__":
     # Select the model
     ai_model = None
     config.DETECTION_MODEL = ModelVersion(config.DETECTION_MODEL)
-    config.TF_VERSION = TensorFlowVersion(config.TF_VERSION)
     if config.DETECTION_MODEL == ModelVersion.YOLO:
-        yolo_model_file = MODEL_YOLO
-        if config.TF_VERSION == TensorFlowVersion.LITE:
-            yolo_model_file = MODEL_YOLO_TFLITE
-        ai_model = YoloModel(config.TF_VERSION, yolo_model_file, 0, 0.33)
+        ai_model = YoloModel(0, 0.33)
     elif config.DETECTION_MODEL == ModelVersion.HAILO:
         ai_model = HailoModel(0.33)
     elif config.DETECTION_MODEL == ModelVersion.PIPELINE:
-        yolo_model_files = {
-            256: MODEL_256,
-            128: MODEL_128,
-            64: MODEL_64,
-        }
-        if config.TF_VERSION == TensorFlowVersion.LITE:
-            yolo_model_files = {
-                256: MODEL_LITE_256,
-                128: MODEL_LITE_128,
-                64: MODEL_LITE_64,
-            }
-        ai_model = PipelineModel(config.TF_VERSION, yolo_model_files, 1, 0.6)
+        ai_model = PipelineModel(1, 0.6)
 
     # Perform the evaluation
     model_result = ai_model.evaluate(input_image)

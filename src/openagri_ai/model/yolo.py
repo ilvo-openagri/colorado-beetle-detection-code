@@ -5,14 +5,16 @@ from ultralytics import YOLO
 import cv2
 import multiprocessing
 from .version import TensorFlowVersion
+from ..settings import config
+from ..constants import MODEL_YOLO, MODEL_YOLO_TFLITE
 
 
 class YoloModel(_BaseAIModel):
 
     def __init__(
         self,
-        tensorflow_version: TensorFlowVersion,
-        model_path: Path,
+        # tensorflow_version: TensorFlowVersion,
+        # model_path: Path,
         amount_of_workers: int,
         confidence: float,
         device: str = "cpu",
@@ -20,13 +22,17 @@ class YoloModel(_BaseAIModel):
         super().__init__()
         self._confidence = confidence
         self._model = None
-        self._model_path = model_path
         self._mp_result_queue = multiprocessing.Queue()
         self._mp_task_queue = multiprocessing.Queue()
         self._mp_workers = []
-        self._output_dimension = 256
-        self._tensorflow_version = tensorflow_version
+        self._output_dimension = config.DETECTION_MODEL_DIM
+        self._tensorflow_version = TensorFlowVersion(config.TF_VERSION)
         self._device = device
+
+        self._model_path = MODEL_YOLO
+        if self._tensorflow_version == TensorFlowVersion.LITE:
+            self._model_path = MODEL_YOLO_TFLITE
+
         if amount_of_workers == 0:
             self._yolo_model = YOLO(self._model_path, task="detect")
             self._yolo_model.to("cuda")

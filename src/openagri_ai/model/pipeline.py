@@ -8,24 +8,45 @@ import keras
 import multiprocessing
 import numpy as np
 import tensorflow as tf
+from ..settings import config
+from ..constants import (
+    MODEL_64,
+    MODEL_128,
+    MODEL_256,
+    MODEL_LITE_64,
+    MODEL_LITE_128,
+    MODEL_LITE_256,
+)
 
 
 class PipelineModel(_BaseAIModel):
 
     def __init__(
         self,
-        tensorflow_version: TensorFlowVersion,
-        model_paths: dict[int:Path],
+        # tensorflow_version: TensorFlowVersion,
+        # model_paths: dict[int:Path],
         amount_of_workers: int,
         confidence: float,
     ):
         super().__init__()
-        self._tensorflow_version = tensorflow_version
-        self._model_paths = model_paths
+        self._tensorflow_version = TensorFlowVersion(config.TF_VERSION)
         self._output_dimension = 256
         self._mp_task_queue = multiprocessing.Queue()
         self._mp_result_queue = multiprocessing.Queue()
         self._mp_workers = []
+
+        self._model_paths = {
+            256: MODEL_256,
+            128: MODEL_128,
+            64: MODEL_64,
+        }
+        if self._tensorflow_version == TensorFlowVersion.LITE:
+            yolo_model_files = {
+                256: MODEL_LITE_256,
+                128: MODEL_LITE_128,
+                64: MODEL_LITE_64,
+            }
+
         for worker_index in range(amount_of_workers):
             p = multiprocessing.Process(
                 target=self._mp_worker,
