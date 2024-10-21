@@ -1,5 +1,6 @@
 from .base import _BaseAIModel
 from .result import AiResult, ModelResult
+<<<<<<< HEAD
 import platform
 
 if platform.system() == "aarch64":
@@ -15,6 +16,20 @@ if platform.system() == "aarch64":
         OutputVStreams,
         FormatType,
     )
+=======
+from hailo_platform import (
+    HEF,
+    VDevice,
+    HailoStreamInterface,
+    InferVStreams,
+    ConfigureParams,
+    InputVStreamParams,
+    OutputVStreamParams,
+    InputVStreams,
+    OutputVStreams,
+    FormatType,
+)
+>>>>>>> 40b0b58 (Close the hailo resources atexit)
 import cv2
 from .version import TensorFlowVersion
 import numpy as np
@@ -69,15 +84,17 @@ class HailoModel(_BaseAIModel):
                     }
                     infer_results = infer_pipeline.infer(input_data)
                     for hailo_result in infer_results[output_vstream_info.name][0][0]:
+                        if hailo_result[4] < self._confidence:
+                            continue
                         matching_image_set.append(
                             AiResult(
                                 image=None,
                                 center_x=active_image.center_x
                                 - self._output_dimension / 2
-                                + 640 * hailo_result[1],
+                                + self._output_dimension * hailo_result[1],
                                 center_y=active_image.center_y
                                 - self._output_dimension / 2
-                                + 640 * hailo_result[0],
+                                + self._output_dimension * hailo_result[0],
                                 confidence=hailo_result[4],
                             )
                         )
@@ -85,3 +102,8 @@ class HailoModel(_BaseAIModel):
         self.logger.info("Completed")
 
         return ModelResult(leaves=leave_images, beetles={64: matching_image_set})
+
+    def close(self):
+        """Release all resources on close"""
+        self.logger.info("Releasing all resources")
+        self.target.release()
