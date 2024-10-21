@@ -1,6 +1,5 @@
 from .base import _BaseAIModel
 from .result import AiResult, ModelResult
-<<<<<<< HEAD
 import platform
 
 if platform.system() == "aarch64":
@@ -16,20 +15,6 @@ if platform.system() == "aarch64":
         OutputVStreams,
         FormatType,
     )
-=======
-from hailo_platform import (
-    HEF,
-    VDevice,
-    HailoStreamInterface,
-    InferVStreams,
-    ConfigureParams,
-    InputVStreamParams,
-    OutputVStreamParams,
-    InputVStreams,
-    OutputVStreams,
-    FormatType,
-)
->>>>>>> 40b0b58 (Close the hailo resources atexit)
 import cv2
 from .version import TensorFlowVersion
 import numpy as np
