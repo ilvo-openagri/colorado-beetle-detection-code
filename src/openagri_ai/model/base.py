@@ -103,3 +103,7 @@ class _BaseAIModel(ABC):
             image_file (cv2.typing.MatLike): Source image
         """
         return
+
+    def close(self):
+        """Release all resources on close"""
+        return
