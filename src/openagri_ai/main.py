@@ -5,6 +5,7 @@ from .constants import *
 from pathlib import Path
 from .model import TensorFlowVersion, ModelVersion, ModelResult
 from .model import YoloModel, PipelineModel, HailoModel
+from .settings import config
 import argparse
 import cv2
 import logging
@@ -135,7 +136,11 @@ if __name__ == "__main__":
         "--model",
         dest="model",
         required=False,
-        choices=[ModelVersion.PIPELINE.value, ModelVersion.YOLO.value, ModelVersion.HAILO.value],
+        choices=[
+            ModelVersion.PIPELINE.value,
+            ModelVersion.YOLO.value,
+            ModelVersion.HAILO.value,
+        ],
         default=ModelVersion.PIPELINE.value,
         help="The type of model used on the 256x256 images of the crops.",
     )
@@ -149,20 +154,22 @@ if __name__ == "__main__":
 
     # Select the model
     ai_model = None
-    if ai_model_version == ModelVersion.YOLO:
+    config.DETECTION_MODEL = ModelVersion(config.DETECTION_MODEL)
+    config.TF_VERSION = TensorFlowVersion(config.TF_VERSION)
+    if config.DETECTION_MODEL == ModelVersion.YOLO:
         yolo_model_file = MODEL_YOLO
-        if ai_tensorflow_version == TensorFlowVersion.LITE:
+        if config.TF_VERSION == TensorFlowVersion.LITE:
             yolo_model_file = MODEL_YOLO_TFLITE
         ai_model = YoloModel(ai_tensorflow_version, yolo_model_file, 0, 0.33)
-    elif ai_model_version == ModelVersion.HAILO:
+    elif config.DETECTION_MODEL == ModelVersion.HAILO:
         ai_model = HailoModel(0.33)
-    elif ai_model_version == ModelVersion.PIPELINE:
+    elif config.DETECTION_MODEL == ModelVersion.PIPELINE:
         yolo_model_files = {
             256: MODEL_256,
             128: MODEL_128,
             64: MODEL_64,
         }
-        if ai_tensorflow_version == TensorFlowVersion.LITE:
+        if config.TF_VERSION == TensorFlowVersion.LITE:
             yolo_model_files = {
                 256: MODEL_LITE_256,
                 128: MODEL_LITE_128,

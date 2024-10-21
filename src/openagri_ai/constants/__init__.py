@@ -13,5 +13,8 @@ MODEL_LITE_64 = "./trained_models/model64/model.tflite"
 MODEL_LITE_128 = "./trained_models/model128/model.tflite"
 MODEL_LITE_256 = "./trained_models/model256/model.tflite"
 
-MODEL_YOLO = "./trained_models/yolo256.pt"
+MODEL_YOLO = "./trained_models/yolo256_saved_model/model.pt"
 MODEL_YOLO_TFLITE = "./trained_models/yolo256_saved_model/yolo256_float32.tflite"
+
+MODEL_CLASS_NCNN = "./trained_models/model_yolov8n_segmentation/model_ncnn_model/"
+MODEL_CLASS_PYTORCH = "./trained_models/model_yolov8n_segmentation/model.pt"

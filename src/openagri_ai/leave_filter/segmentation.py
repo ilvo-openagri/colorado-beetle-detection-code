@@ -1,5 +1,7 @@
 from ..model.result import AiResult
 from ..tools.visualise import show_image
+from ..settings import config
+from ..constants import MODEL_CLASS_NCNN, MODEL_CLASS_PYTORCH
 
 from ultralytics import YOLO
 import cv2
@@ -14,8 +16,14 @@ class SegmentationFilter:
     ):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
+
+        if config.LEAVE_SEGMENTATION_MODEL == "NCNN":
+            model_file = MODEL_CLASS_NCNN
+        else:
+            model_file = MODEL_CLASS_PYTORCH
+
         self._model = YOLO(
-            "trained_models/model_yolov8n_segmentation/model_ncnn_model/",
+            model_file,
             task="segment",
         )
         results = self._model.predict("test_images/sectie32.JPG", verbose=False)
@@ -46,10 +54,6 @@ class SegmentationFilter:
             for c in result:
                 contour = c.masks.xy.pop().astype(np.int32).reshape(-1, 1, 2)
                 cv2.drawContours(leave_mask, [contour], -1, (255, 255, 255), cv2.FILLED)
-        self.logger.info("Done")
-        # source_image = cv2.bitwise_and(source_image, source_image, mask=leave_mask)
-        self.logger.info("BW_AND")
-        # show_image(source_image)
 
         # 2. Extract the images containing enough green:
         for x_index in range(grid_dimension[0]):

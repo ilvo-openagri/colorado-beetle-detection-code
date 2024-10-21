@@ -29,6 +29,7 @@ class YoloModel(_BaseAIModel):
         self._device = device
         if amount_of_workers == 0:
             self._yolo_model = YOLO(self._model_path, task="detect")
+            self._yolo_model.to("cuda")
         else:
             for worker_index in range(amount_of_workers):
                 p = multiprocessing.Process(
