@@ -142,8 +142,6 @@ if __name__ == "__main__":
     script_arguments = parser.parse_args()
 
     # Initialise and start the OpenAgri AI parsing:
-    ai_model_version = ModelVersion(script_arguments.model)
-    ai_tensorflow_version = TensorFlowVersion(script_arguments.tensorflow)
     input_path = Path(script_arguments.input)
     input_image = cv2.imread(input_path.as_posix())
 
@@ -155,7 +153,7 @@ if __name__ == "__main__":
         yolo_model_file = MODEL_YOLO
         if config.TF_VERSION == TensorFlowVersion.LITE:
             yolo_model_file = MODEL_YOLO_TFLITE
-        ai_model = YoloModel(ai_tensorflow_version, yolo_model_file, 0, 0.33)
+        ai_model = YoloModel(config.TF_VERSION, yolo_model_file, 0, 0.33)
     elif config.DETECTION_MODEL == ModelVersion.HAILO:
         ai_model = HailoModel(0.33)
     elif config.DETECTION_MODEL == ModelVersion.PIPELINE:
@@ -170,7 +168,7 @@ if __name__ == "__main__":
                 128: MODEL_LITE_128,
                 64: MODEL_LITE_64,
             }
-        ai_model = PipelineModel(ai_tensorflow_version, yolo_model_files, 1, 0.6)
+        ai_model = PipelineModel(config.TF_VERSION, yolo_model_files, 1, 0.6)
 
     # Perform the evaluation
     model_result = ai_model.evaluate(input_image)
