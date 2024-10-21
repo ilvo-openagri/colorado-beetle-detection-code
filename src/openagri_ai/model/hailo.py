@@ -2,7 +2,7 @@ from .base import _BaseAIModel
 from .result import AiResult, ModelResult
 import platform
 
-if platform.system() == "aarch64":
+if platform.machine() == "aarch64":
     from hailo_platform import (
         HEF,
         VDevice,

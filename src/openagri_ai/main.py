@@ -12,7 +12,6 @@ import logging
 import matplotlib
 import atexit
 
-matplotlib.use("tkagg")
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,7 +22,8 @@ import platform
 # This code removes the error, but might impact performance?
 if platform.system() == "Windows":
     os.environ["OMP_NUM_THREADS"] = "1"
-elif platform.system() == "Linux":
+
+if platform.machine() != "aarch64":
     matplotlib.use("tkagg")
 
 
