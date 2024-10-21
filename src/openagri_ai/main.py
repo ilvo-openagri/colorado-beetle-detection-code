@@ -10,6 +10,7 @@ import argparse
 import cv2
 import logging
 import matplotlib
+import atexit
 
 matplotlib.use("tkagg")
 import matplotlib.patches as patches
@@ -22,6 +23,18 @@ import platform
 # This code removes the error, but might impact performance?
 if platform.system() == "Windows":
     os.environ["OMP_NUM_THREADS"] = "1"
+elif platform.system() == "Linux":
+    matplotlib.use("tkagg")
+
+
+ai_model = None
+
+
+def exit_handler():
+    """Called on exit of the python program"""
+    global ai_model
+    if ai_model is not None:
+        ai_model.close()
 
 
 def visualise(
@@ -104,6 +117,9 @@ if __name__ == "__main__":
     logging.getLogger("colormath").setLevel(logging.ERROR)
     logging.getLogger("h5py").setLevel(logging.ERROR)
 
+    # Register exit handler
+    atexit.register(exit_handler)
+
     # Parse the script arguments:
     parser = argparse.ArgumentParser(
         description="Evaluate image(s) from Colorado Beetles"
@@ -122,27 +138,6 @@ if __name__ == "__main__":
         required=False,
         default="",
         help="The path where an annotated output image can be stored.",
-    )
-    parser.add_argument(
-        "--tensorflow",
-        dest="tensorflow",
-        metavar="path",
-        required=False,
-        choices=[TensorFlowVersion.DEFAULT.value, TensorFlowVersion.LITE.value],
-        default=TensorFlowVersion.DEFAULT.value,
-        help="Select the tensorflow version (lite or default)",
-    )
-    parser.add_argument(
-        "--model",
-        dest="model",
-        required=False,
-        choices=[
-            ModelVersion.PIPELINE.value,
-            ModelVersion.YOLO.value,
-            ModelVersion.HAILO.value,
-        ],
-        default=ModelVersion.PIPELINE.value,
-        help="The type of model used on the 256x256 images of the crops.",
     )
     script_arguments = parser.parse_args()
 
