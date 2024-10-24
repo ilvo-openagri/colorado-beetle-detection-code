@@ -2,21 +2,22 @@
 """
 
 from .constants import *
-from pathlib import Path
 from .model import TensorFlowVersion, ModelVersion, ModelResult
 from .model import YoloModel, PipelineModel, HailoModel
 from .settings import config
+from .util.text import GREEN, RED, RESET
+from pathlib import Path
 import argparse
+import atexit
 import cv2
 import logging
 import matplotlib
-import atexit
-
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import platform
+import time
 
 # Got an error that the physical cores could not be identified
 # This code removes the error, but might impact performance?
@@ -151,12 +152,20 @@ if __name__ == "__main__":
     if config.DETECTION_MODEL == ModelVersion.YOLO:
         ai_model = YoloModel(0, 0.33)
     elif config.DETECTION_MODEL == ModelVersion.HAILO:
-        ai_model = HailoModel(0.33)
+        ai_model = HailoModel(0.4)
     elif config.DETECTION_MODEL == ModelVersion.PIPELINE:
         ai_model = PipelineModel(1, 0.6)
 
     # Perform the evaluation
+    start_time = time.time()
     model_result = ai_model.evaluate(input_image)
+    model_execution_time = round(time.time() - start_time, 2)
+    logger.info(
+        "%sEvaluation took %s seconds%s",
+        GREEN if model_execution_time < 1 else RED,
+        model_execution_time,
+        RESET,
+    )
 
     # Write the results to an image for visualisation:
     output_path = Path(script_arguments.output)
