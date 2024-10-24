@@ -11,3 +11,4 @@ runs
 test_images
 trained_models
 trainingset
+*.log
