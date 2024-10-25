@@ -4,7 +4,7 @@
 from .constants import *
 from .model import TensorFlowVersion, ModelVersion, ModelResult
 from .model import YoloModel, PipelineModel, HailoModel
-from .settings import config
+from .settings import get_config
 from .util.text import GREEN, RED, RESET
 from pathlib import Path
 import argparse
@@ -140,7 +140,19 @@ if __name__ == "__main__":
         default="",
         help="The path where an annotated output image can be stored.",
     )
+    parser.add_argument(
+        "--config",
+        dest="scriptconfig",
+        metavar="path",
+        required=False,
+        default="default",
+        help="Configuration option for the evaluation script [default, raspi, pipeline]",
+    )
     script_arguments = parser.parse_args()
+
+    # Update the config_name environment variable
+    os.environ["CONFIG_NAME"] = script_arguments.scriptconfig
+    config = get_config()
 
     # Initialise and start the OpenAgri AI parsing:
     input_path = Path(script_arguments.input)

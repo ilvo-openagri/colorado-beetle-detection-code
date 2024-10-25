@@ -1,6 +1,6 @@
 from ..model.result import AiResult
 from ..tools.visualise import show_image
-from ..settings import config
+from ..settings import get_config
 from ..constants import MODEL_CLASS_NCNN, MODEL_CLASS_PYTORCH
 
 from ultralytics import YOLO
@@ -16,6 +16,7 @@ class SegmentationFilter:
     ):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
+        config = get_config()
 
         if config.LEAVE_SEGMENTATION_MODEL == "NCNN":
             model_file = MODEL_CLASS_NCNN

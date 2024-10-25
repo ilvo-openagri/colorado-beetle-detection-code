@@ -1,6 +1,6 @@
 from .base import _BaseAIModel
 from .result import AiResult, ModelResult
-from ..settings import config
+from ..settings import get_config
 from ..constants import MODEL_HAILO_256, MODEL_HAILO_640
 import platform
 
@@ -24,6 +24,7 @@ class HailoModel(_BaseAIModel):
 
     def __init__(self, confidence: float):
         super().__init__()
+        config = get_config()
         self._confidence = confidence
         self._output_dimension = config.DETECTION_MODEL_DIM
 

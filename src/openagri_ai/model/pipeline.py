@@ -1,3 +1,13 @@
+from ..constants import (
+    MODEL_64,
+    MODEL_128,
+    MODEL_256,
+    MODEL_LITE_64,
+    MODEL_LITE_128,
+    MODEL_LITE_256,
+)
+from ..leave_filter import KmeansFilter
+from ..settings import get_config
 from .base import _BaseAIModel
 from .result import AiResult, ModelResult
 from .version import TensorFlowVersion
@@ -8,15 +18,6 @@ import keras
 import multiprocessing
 import numpy as np
 import tensorflow as tf
-from ..settings import config
-from ..constants import (
-    MODEL_64,
-    MODEL_128,
-    MODEL_256,
-    MODEL_LITE_64,
-    MODEL_LITE_128,
-    MODEL_LITE_256,
-)
 
 
 class PipelineModel(_BaseAIModel):
@@ -29,11 +30,13 @@ class PipelineModel(_BaseAIModel):
         confidence: float,
     ):
         super().__init__()
+        config = get_config()
         self._tensorflow_version = TensorFlowVersion(config.TF_VERSION)
         self._output_dimension = 256
         self._mp_task_queue = multiprocessing.Queue()
         self._mp_result_queue = multiprocessing.Queue()
         self._mp_workers = []
+        self.leave_filter = KmeansFilter()
 
         self._model_paths = {
             256: MODEL_256,
@@ -41,7 +44,7 @@ class PipelineModel(_BaseAIModel):
             64: MODEL_64,
         }
         if self._tensorflow_version == TensorFlowVersion.LITE:
-            yolo_model_files = {
+            self._model_paths = {
                 256: MODEL_LITE_256,
                 128: MODEL_LITE_128,
                 64: MODEL_LITE_64,
@@ -77,9 +80,9 @@ class PipelineModel(_BaseAIModel):
         """
         if self._tensorflow_version == TensorFlowVersion.DEFAULT:
             pipeline_models = {
-                256: keras.models.load_model(self._model_paths[256]),
-                128: keras.models.load_model(self._model_paths[128]),
-                64: keras.models.load_model(self._model_paths[64]),
+                256: tf.saved_model.load(self._model_paths[256]),
+                128: tf.saved_model.load(self._model_paths[128]),
+                64: tf.saved_model.load(self._model_paths[64]),
             }
         elif self._tensorflow_version == TensorFlowVersion.LITE:
             pipeline_lite_interpreters = {
@@ -96,8 +99,13 @@ class PipelineModel(_BaseAIModel):
             size = len(image_description.image)
             reshaped_image = tf.reshape(image_description.image, [1, size, size, 3])
             if self._tensorflow_version == TensorFlowVersion.DEFAULT:
-                prediction = pipeline_models[size].predict(reshaped_image, verbose=0)
-                filter_result = prediction[0][1]
+                prediction = pipeline_models[size].signatures["serving_default"](
+                    input_1=reshaped_image
+                )
+                filter_result = np.array(
+                    next(iter(prediction.values()))
+                )  # dense_2, dense_1, ...
+                filter_result = filter_result[0][1]
             elif self._tensorflow_version == TensorFlowVersion.LITE:
                 interpreter = pipeline_lite_interpreters[size]
                 interpreter.set_tensor(

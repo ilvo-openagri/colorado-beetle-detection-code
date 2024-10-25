@@ -5,7 +5,7 @@ from ultralytics import YOLO
 import cv2
 import multiprocessing
 from .version import TensorFlowVersion
-from ..settings import config
+from ..settings import get_config
 from ..constants import MODEL_YOLO, MODEL_YOLO_TFLITE
 
 
@@ -20,6 +20,7 @@ class YoloModel(_BaseAIModel):
         device: str = "cpu",
     ):
         super().__init__()
+        config = get_config()
         self._confidence = confidence
         self._model = None
         self._mp_result_queue = multiprocessing.Queue()

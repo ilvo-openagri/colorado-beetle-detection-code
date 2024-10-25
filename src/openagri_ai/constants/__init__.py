@@ -5,6 +5,7 @@ OVERLAP = 0
 WIDTH_PIECE = 512
 
 MODEL_KMEANS = "./trained_models/kmeans"
+
 MODEL_64 = "./trained_models/model64/"
 MODEL_128 = "./trained_models/model128/"
 MODEL_256 = "./trained_models/model256/"
