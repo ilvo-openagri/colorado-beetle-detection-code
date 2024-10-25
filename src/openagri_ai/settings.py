@@ -1,6 +1,10 @@
-import os
-import importlib
+"""
+Module to dynamically load the project settings
+"""
+
 from .config import OpenagriConfig
+import importlib
+import os
 
 _config_name = ""
 config = None

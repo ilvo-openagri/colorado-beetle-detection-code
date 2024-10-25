@@ -97,7 +97,7 @@ class _BaseAIModel(ABC):
 
     @abstractmethod
     def evaluate(self, image_file: cv2.typing.MatLike) -> ModelResult:
-        """Evaluate the images from the file path against the openagri YOLO AI model
+        """Evaluate the images from the file path against the openagri AI model
 
         Args:
             image_file (cv2.typing.MatLike): Source image

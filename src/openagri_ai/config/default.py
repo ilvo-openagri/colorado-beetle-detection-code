@@ -1,3 +1,6 @@
+"""Module containing the default openagri configuration options
+"""
+
 from . import OpenagriConfig
 
 config = OpenagriConfig(

@@ -3,29 +3,22 @@ from .result import AiResult, ModelResult
 from pathlib import Path
 from ultralytics import YOLO
 import cv2
-import multiprocessing
 from .version import TensorFlowVersion
 from ..settings import get_config
 from ..constants import MODEL_YOLO, MODEL_YOLO_TFLITE
 
 
 class YoloModel(_BaseAIModel):
+    """YoloV8 model for Colorado Beetle detection"""
 
     def __init__(
         self,
-        # tensorflow_version: TensorFlowVersion,
-        # model_path: Path,
-        amount_of_workers: int,
         confidence: float,
         device: str = "cpu",
     ):
         super().__init__()
         config = get_config()
         self._confidence = confidence
-        self._model = None
-        self._mp_result_queue = multiprocessing.Queue()
-        self._mp_task_queue = multiprocessing.Queue()
-        self._mp_workers = []
         self._output_dimension = config.DETECTION_MODEL_DIM
         self._tensorflow_version = TensorFlowVersion(config.TF_VERSION)
         self._device = device
@@ -34,46 +27,21 @@ class YoloModel(_BaseAIModel):
         if self._tensorflow_version == TensorFlowVersion.LITE:
             self._model_path = MODEL_YOLO_TFLITE
 
-        if amount_of_workers == 0:
-            self._yolo_model = YOLO(self._model_path, task="detect")
-            self._yolo_model.to("cuda")
-        else:
-            for worker_index in range(amount_of_workers):
-                p = multiprocessing.Process(
-                    target=self._mp_worker,
-                    args=(
-                        worker_index,
-                        self._model_path,
-                        confidence,
-                        self._mp_task_queue,
-                        self._mp_result_queue,
-                    ),
-                )
-                p.start()
-                self._mp_workers.append(p)
+        self._yolo_model = YOLO(self._model_path, task="detect")
+        self._yolo_model.to("cuda")
 
-    def _mp_worker(
-        self,
-        _worker_index: int,
-        model: str,
-        confidence: float,
-        task_queue: multiprocessing.Queue,
-        result_queue: multiprocessing.Queue,
-    ):
-        yolo_model = YOLO(model, task="detect")
-        while True:
-            image_description = task_queue.get()
-            yolo_results = self._mp_worker_work(
-                yolo_model, image_description, confidence
-            )
-            result_queue.put(yolo_results)
+    def _filter(self, image_description: AiResult) -> list[dict]:
+        """Filter out Colorado Beetle using the YoloV8 model
 
-    def _mp_worker_work(
-        self, model: YOLO, image_description: AiResult, confidence: float
-    ) -> list:
-        yolo_match = model.predict(
+        Args:
+            image_description (AiResult): Source image description
+
+        Returns:
+            list[dict]: Matches within the source image
+        """
+        yolo_match = self._yolo_model.predict(
             image_description.image,
-            conf=confidence,
+            conf=self._confidence,
             verbose=False,
             device=self._device,
         )
@@ -93,30 +61,17 @@ class YoloModel(_BaseAIModel):
         return yolo_results
 
     def evaluate(self, image_file: cv2.typing.MatLike) -> ModelResult:
+        """Evaluate the images from the file path against the openagri YoloV8 AI model
+
+        Args:
+            image_file (cv2.typing.MatLike): Source image
+        """
         self.logger.info("Start evaluation")
 
         leave_images = self._collect_leaves(image_file, self._output_dimension)
         matches = []
-
-        if not self._mp_workers:
-            for active_image in leave_images:
-                matches.extend(
-                    self._mp_worker_work(
-                        self._yolo_model, active_image, self._confidence
-                    )
-                )
-        else:
-            for active_image in leave_images:
-                self._mp_task_queue.put(active_image)
-
-            self.logger.info("Waiting for workers to finish")
-
-            # Collect the results
-            task_done_count = 0
-            while task_done_count < len(leave_images):
-                process_result = self._mp_result_queue.get()
-                task_done_count += 1
-                matches.extend(process_result)
+        for active_image in leave_images:
+            matches.extend(self._filter(active_image))
 
         matching_image_set = []
         for match in matches:

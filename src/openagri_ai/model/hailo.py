@@ -1,7 +1,9 @@
+from ..constants import MODEL_HAILO_256, MODEL_HAILO_640
+from ..settings import get_config
 from .base import _BaseAIModel
 from .result import AiResult, ModelResult
-from ..settings import get_config
-from ..constants import MODEL_HAILO_256, MODEL_HAILO_640
+import cv2
+import numpy as np
 import platform
 
 if platform.machine() == "aarch64":
@@ -15,12 +17,10 @@ if platform.machine() == "aarch64":
         OutputVStreamParams,
         FormatType,
     )
-import cv2
-from .version import TensorFlowVersion
-import numpy as np
 
 
 class HailoModel(_BaseAIModel):
+    """YoloV8 model which can be run on the Hailo8L AI shield"""
 
     def __init__(self, confidence: float):
         super().__init__()
@@ -53,6 +53,11 @@ class HailoModel(_BaseAIModel):
         self.output_vstreams_params = OutputVStreamParams.make(self.network_groups[0])
 
     def evaluate(self, image_file: cv2.typing.MatLike) -> ModelResult:
+        """Evaluate the images from the file path against the openagri Hailo AI model
+
+        Args:
+            image_file (cv2.typing.MatLike): Source image
+        """
         matching_image_set = []
         self.logger.info("Start evaluation")
 

@@ -10,10 +10,9 @@ import numpy as np
 
 
 class SegmentationFilter:
+    """Leave filter using a YoloV8 segmentation"""
 
-    def __init__(
-        self,
-    ):
+    def __init__(self, do_warmup: bool = True):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         config = get_config()
@@ -27,9 +26,12 @@ class SegmentationFilter:
             model_file,
             task="segment",
         )
-        results = self._model.predict("test_images/sectie32.JPG", verbose=False)
 
-    def filter(self, source_image: np.ndarray, dimension: int) -> list[np.ndarray]:
+        # Do a warmup detection. The first prediction takes longer do to some additional loading.
+        if do_warmup:
+            self._model.predict("test_images/sectie32.JPG", verbose=False)
+
+    def filter(self, source_image: np.ndarray, dimension: int) -> list[AiResult]:
         """Do a classification to identify the leaves vs soil
 
         Args:
@@ -49,7 +51,6 @@ class SegmentationFilter:
         # 1. First perform segmentation to identify the leaves:
         self.logger.info("Performing segmentation")
         results = self._model.predict(source_image, verbose=False)
-        self.logger.info("Create mask")
         leave_mask = np.zeros(source_image.shape[:2], np.uint8)
         for result in results:
             for c in result:
@@ -91,6 +92,6 @@ class SegmentationFilter:
                 )
 
                 result_set.append(ai_result)
-        self.logger.info("Done")
+        self.logger.info("Segmentation completed")
 
         return result_set

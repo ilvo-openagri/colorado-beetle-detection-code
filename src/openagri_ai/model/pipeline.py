@@ -11,126 +11,93 @@ from ..settings import get_config
 from .base import _BaseAIModel
 from .result import AiResult, ModelResult
 from .version import TensorFlowVersion
-from pathlib import Path
-from ultralytics import YOLO
 import cv2
-import keras
-import multiprocessing
 import numpy as np
 import tensorflow as tf
 
 
 class PipelineModel(_BaseAIModel):
+    """AI model for the original pipeline model (see Thesis_Robin.pdf)
+    The execution has been improved compared to the available implementation
+    """
 
     def __init__(
         self,
-        # tensorflow_version: TensorFlowVersion,
-        # model_paths: dict[int:Path],
-        amount_of_workers: int,
         confidence: float,
     ):
         super().__init__()
         config = get_config()
+        self._confidence = confidence
         self._tensorflow_version = TensorFlowVersion(config.TF_VERSION)
         self._output_dimension = 256
-        self._mp_task_queue = multiprocessing.Queue()
-        self._mp_result_queue = multiprocessing.Queue()
-        self._mp_workers = []
+        self._filters = []
         self.leave_filter = KmeansFilter()
 
-        self._model_paths = {
-            256: MODEL_256,
-            128: MODEL_128,
-            64: MODEL_64,
-        }
-        if self._tensorflow_version == TensorFlowVersion.LITE:
-            self._model_paths = {
-                256: MODEL_LITE_256,
-                128: MODEL_LITE_128,
-                64: MODEL_LITE_64,
+        if self._tensorflow_version == TensorFlowVersion.DEFAULT:
+            self._pipeline_models = {
+                256: tf.saved_model.load(MODEL_256),
+                128: tf.saved_model.load(MODEL_128),
+                64: tf.saved_model.load(MODEL_64),
             }
+        if self._tensorflow_version == TensorFlowVersion.LITE:
+            self._pipeline_models = {
+                256: tf.lite.Interpreter(MODEL_LITE_256),
+                128: tf.lite.Interpreter(MODEL_LITE_128),
+                64: tf.lite.Interpreter(MODEL_LITE_64),
+            }
+            for interpreter in self._pipeline_models.values():
+                interpreter.allocate_tensors()
 
-        for worker_index in range(amount_of_workers):
-            p = multiprocessing.Process(
-                target=self._mp_worker,
-                args=(
-                    worker_index,
-                    confidence,
-                    self._mp_task_queue,
-                    self._mp_result_queue,
-                ),
-            )
-            p.start()
-            self._mp_workers.append(p)
-
-    def _mp_worker(
-        self,
-        _worker_index: int,
-        confidence: float,
-        task_queue: multiprocessing.Queue,
-        result_queue: multiprocessing.Queue,
-    ) -> bool:
+    def _filter(self, confidence: float, image_description: AiResult) -> bool:
         """Filter the image based on the pipeline provided through the thesis of Robin
 
         Args:
+            confidence (float): Minimum confidence level of the results
             source_image (np.ndarray): Source image
 
         Returns:
             bool: Return if the image matches the pipeline stage
         """
+        filter_result = 0
+        size = len(image_description.image)
+        reshaped_image = tf.reshape(image_description.image, [1, size, size, 3])
         if self._tensorflow_version == TensorFlowVersion.DEFAULT:
-            pipeline_models = {
-                256: tf.saved_model.load(self._model_paths[256]),
-                128: tf.saved_model.load(self._model_paths[128]),
-                64: tf.saved_model.load(self._model_paths[64]),
-            }
+            prediction = self._pipeline_models[size].signatures["serving_default"](
+                input_1=reshaped_image
+            )
+            filter_result = np.array(
+                next(iter(prediction.values()))
+            )  # dense_2, dense_1, ...
+            filter_result = filter_result[0][1]
         elif self._tensorflow_version == TensorFlowVersion.LITE:
-            pipeline_lite_interpreters = {
-                256: tf.lite.Interpreter(self._model_paths[256]),
-                128: tf.lite.Interpreter(self._model_paths[128]),
-                64: tf.lite.Interpreter(self._model_paths[64]),
-            }
-            for interpreter in pipeline_lite_interpreters.values():
-                interpreter.allocate_tensors()
+            interpreter = self._pipeline_models[size]
+            interpreter.set_tensor(
+                tensor_index=interpreter.get_input_details()[0]["index"],
+                value=reshaped_image,
+            )
+            interpreter.invoke()
+            filter_result = interpreter.get_tensor(
+                tensor_index=interpreter.get_output_details()[0]["index"]
+            )
+            filter_result = filter_result[0][1]
 
-        while True:
-            filter_result = 0
-            image_description = task_queue.get()
-            size = len(image_description.image)
-            reshaped_image = tf.reshape(image_description.image, [1, size, size, 3])
-            if self._tensorflow_version == TensorFlowVersion.DEFAULT:
-                prediction = pipeline_models[size].signatures["serving_default"](
-                    input_1=reshaped_image
-                )
-                filter_result = np.array(
-                    next(iter(prediction.values()))
-                )  # dense_2, dense_1, ...
-                filter_result = filter_result[0][1]
-            elif self._tensorflow_version == TensorFlowVersion.LITE:
-                interpreter = pipeline_lite_interpreters[size]
-                interpreter.set_tensor(
-                    tensor_index=interpreter.get_input_details()[0]["index"],
-                    value=reshaped_image,
-                )
-                interpreter.invoke()
-                filter_result = interpreter.get_tensor(
-                    tensor_index=interpreter.get_output_details()[0]["index"]
-                )
-                filter_result = filter_result[0][1]
-
-            if filter_result >= confidence:
-                image_description.confidence = filter_result
-                result_queue.put(image_description)
-            else:
-                result_queue.put(None)
+        if filter_result >= confidence:
+            image_description.confidence = filter_result
+            return image_description
+        else:
+            return None
 
     def evaluate(self, image_file: cv2.typing.MatLike) -> ModelResult:
+        """Evaluate the images from the file path against the openagri pipeline AI model
+
+        Args:
+            image_file (cv2.typing.MatLike): Source image
+        """
         self.logger.info("Start evaluation")
 
         leave_images = self._collect_leaves(image_file, self._output_dimension)
         matching_image_set = []
         matching_images_per_resolution = {}
-        task_done_count = 0
 
         # We do the beetle matching based on three different models:
         # - input: 256x256 images
@@ -150,18 +117,9 @@ class PipelineModel(_BaseAIModel):
 
             # Send the images to the workers:
             for active_image in active_image_set:
-                self._mp_task_queue.put(active_image)
-
-            # Wait for all workers to complete, and gather the results:
-            self.logger.info(
-                "Waiting for workers to finish for model %d", pipeline_model
-            )
-            task_done_count = 0
-            while task_done_count < len(active_image_set):
-                process_result = self._mp_result_queue.get()
-                task_done_count += 1
-                if process_result is not None:
-                    matching_image_set.append(process_result)
+                result = self._filter(self._confidence, active_image)
+                if result is not None:
+                    matching_image_set.append(result)
 
             self.logger.info(
                 "Pipeline matches %d out of %d image pieces (size %d)",

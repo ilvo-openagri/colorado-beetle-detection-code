@@ -1,3 +1,6 @@
+"""Module containing the Raspberry Pi with Hailo8L AI shield openagri configuration options
+"""
+
 from . import OpenagriConfig
 
 config = OpenagriConfig(

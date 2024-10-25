@@ -6,6 +6,7 @@ import numpy as np
 
 
 class KmeansFilter:
+    """Leave filter using kmeans clustering"""
 
     def __init__(self, green_cutoff_value: float = 2.0):
         self.logger = logging.getLogger(__name__)

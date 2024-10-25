@@ -162,7 +162,7 @@ if __name__ == "__main__":
     ai_model = None
     config.DETECTION_MODEL = ModelVersion(config.DETECTION_MODEL)
     if config.DETECTION_MODEL == ModelVersion.YOLO:
-        ai_model = YoloModel(0, 0.33)
+        ai_model = YoloModel(0.33)
     elif config.DETECTION_MODEL == ModelVersion.HAILO:
         ai_model = HailoModel(0.4)
     elif config.DETECTION_MODEL == ModelVersion.PIPELINE:
