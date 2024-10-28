@@ -5,32 +5,44 @@ This code detects Colorado Beetles in high resolution images.
 See the documentation [here](documentation/INSTALL.md)
 
 ## Evaluate an image:
-To evaluate an image, use the evaluate.py script.
+To evaluate an image, use the main.py script.
 
-```
-usage: evaluate.py [-h] --input path [--output path] --tensorflow path
+```shell
+usage: main.py [-h] --input path [--output path] [--config path]
 
 Evaluate image(s) from Colorado Beetles
 
 options:
-  -h, --help         show this help message and exit
-  --input path       The path to the image
-  --output path      The path where an annotated output image can be stored.
-  --tensorflow path  Select the tensorflow version (lite or default)
+  -h, --help     show this help message and exit
+  --input path   The path to the image
+  --output path  The path where an annotated output image can be stored.
+  --config path  Configuration option for the evaluation script [default, raspi, pipeline]
 ```
 
-```Powershell
-python.exe evaluate.py --input .\test_images\sectie32.JPG --output .\test_images\sectie32_annotated. JPG --tensorflow lite
+The enabled options for each conf can be found in src/openagri_ai/config/.
+
+Here is an example of the main script:
+
+```shell
+python3 -m openagri_ai.main --config pipeline --input ./test_images/sectie32.JPG --output ./test_images/sectie32_annotated.JPG 
 ```
 
 Example output
-```
+```log
 ...
-[INFO OpenAgriAIModule @ 2024-08-28 15:00:03,538] Start evaluation on path test_images\sectie32.JPG
-[INFO OpenAgriAIModule @ 2024-08-28 15:00:07,244] Kmeans matches 89 out of 150 image pieces
-[INFO OpenAgriAIModule @ 2024-08-28 15:00:22,625] Pipeline matches 40 out of 356 image pieces (size 256)
-[INFO OpenAgriAIModule @ 2024-08-28 15:00:29,367] Pipeline matches 91 out of 160 image pieces (size 128)
-[INFO OpenAgriAIModule @ 2024-08-28 15:00:29,367] Completed
+[INFO OpenAgriAIModule_openagri_ai.model.base @ 2024-10-28 10:20:37,264] Start evaluation
+[INFO OpenAgriAIModule_openagri_ai.model.base @ 2024-10-28 10:20:37,264] Crop image to 5120x7936
+[INFO OpenAgriAIModule_openagri_ai.model.base @ 2024-10-28 10:20:37,264] Start filtering to extract the leaves
+[INFO OpenAgriAIModule_openagri_ai.model.base @ 2024-10-28 10:20:41,036] Matched 165 out of 620 image pieces for leaves
+[INFO OpenAgriAIModule_openagri_ai.model.base @ 2024-10-28 10:20:41,086] Starting pipeline
+[INFO OpenAgriAIModule_openagri_ai.model.base @ 2024-10-28 10:20:41,977] Pipeline matches 91 out of 165 image pieces (size 256)
+[INFO OpenAgriAIModule_openagri_ai.model.base @ 2024-10-28 10:20:41,978] Starting pipeline
+[INFO OpenAgriAIModule_openagri_ai.model.base @ 2024-10-28 10:20:43,399] Pipeline matches 45 out of 364 image pieces (size 128)
+[INFO OpenAgriAIModule_openagri_ai.model.base @ 2024-10-28 10:20:43,400] Starting pipeline
+[INFO OpenAgriAIModule_openagri_ai.model.base @ 2024-10-28 10:20:43,821] Pipeline matches 50 out of 180 image pieces (size 64)
+[INFO OpenAgriAIModule_openagri_ai.model.base @ 2024-10-28 10:20:43,821] Completed
+[INFO __main__ @ 2024-10-28 10:20:43,822] Evaluation took 6.56 seconds
+[INFO __main__ @ 2024-10-28 10:20:51,955] Written to test_images/sectie32_annotated.JPG
 ```
 
 ## Create a python package

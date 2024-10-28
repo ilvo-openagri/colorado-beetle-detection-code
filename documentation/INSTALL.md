@@ -1,10 +1,8 @@
 # Installation of the Colorado Beetle model
-This installation readme goes over the steps requried to run the Colorado Beetle detection model.
-
-## Dependencies
+This installation readme goes over the steps required to run the Colorado Beetle detection model.
 Install and activate the required dependencies on your machine.
 
-### Python virtual environment
+## Python virtual environment
 First make sure that the python environment has been created.
 You can run this in the system python environment, but this is not advisable.
 It is better to create a python virtual environment.
@@ -36,7 +34,7 @@ python.exe -m pip install -r requirements.txt
 python -m pip install -r requirements.txt
 ```
 
-### Hailo8L AI shield dependencies (Raspberry PI AI kit)
+## Hailo8L AI shield dependencies (Raspberry PI AI kit)
 Install the necessary hailo dependencies.
 ```shell
 sudo apt install hailo-full

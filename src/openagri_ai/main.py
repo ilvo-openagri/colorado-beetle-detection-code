@@ -166,7 +166,7 @@ if __name__ == "__main__":
     elif config.DETECTION_MODEL == ModelVersion.HAILO:
         ai_model = HailoModel(0.4)
     elif config.DETECTION_MODEL == ModelVersion.PIPELINE:
-        ai_model = PipelineModel(1, 0.6)
+        ai_model = PipelineModel(0.6)
 
     # Perform the evaluation
     start_time = time.time()
