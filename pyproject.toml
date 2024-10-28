@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "OpenAgriAiModule"
-version = "V1.0.7"
+version = "V1.0.8"
 readme = "README.md"
 description = "OpenAgri AI module to detect Colorado Beetles within images"
 authors = ["Jan Bauwens <jan.bauwens@ilvo.vlaanderen.be>"]

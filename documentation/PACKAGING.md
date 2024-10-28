@@ -14,11 +14,17 @@ The description of the python package is done through two files:
 - pyproject.toml: Package descritpion
 - MANIFEST.in: Manifest file which includes/excludes specific files and directories
 
+
 To generate the python package, execute following commands:
 ```shell
 python3 -m build # Create the python package
 ```
+
 The resulting files can be found under the dist/ directory.
+
+Make sure to update the version number in pyproject.toml on every new build.
+
+Note: Make sure the remove the old packages when generating a new one. Otherwise the next step (upload) will fail on the old ones with error code 400.
 
 ## Deploy the python package to the gitlab package registry
 First create deploy tokens to read/write the package registry: https://gitlab.ilvo.be/jbauwens/openagri_ai/-/settings/repository
