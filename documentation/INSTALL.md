@@ -2,6 +2,14 @@
 This installation readme goes over the steps required to run the Colorado Beetle detection model.
 Install and activate the required dependencies on your machine.
 
+## Models:
+The models are stored in a git repository seperate from the AI code. This is done to keep the codebase clean.
+The repository containing the AI models is registered as a git submodule. Execute following commands to add them to your local repository.
+
+```shell
+git submodule update --init --recursive
+```
+
 ## Python virtual environment
 First make sure that the python environment has been created.
 You can run this in the system python environment, but this is not advisable.
