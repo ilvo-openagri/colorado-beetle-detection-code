@@ -2,15 +2,15 @@
 This code detects Colorado Beetles in high resolution images.
 There are three different models to execute:
 <ol>
-  <li>Pipeline: Runs the model as described in Thesis_Robin.pdf. </li>
-  <li>Default: Runs a YoloV8n model on 640x640 image pieces. </li>
-  <li>Hailo: Runs a YoloV8n model on 640x640 image pieces on the Hailo AI accelerator.</li>
+  <li>**Pipeline:** Runs the model as described in Thesis_Robin.pdf. </li>
+  <li>**Default:** Runs a YoloV8n model on 640x640 image pieces. </li>
+  <li>**Hailo:** Runs a YoloV8n model on 640x640 image pieces on the Hailo AI accelerator.</li>
 </ol>
 
 To filter out the potato plants in the images, following techiques are used:
 <ol>
-  <li>Kmeans: Kmeans clustering on the image colors. </li>
-  <li>Segmentation: Runs a YoloV8n-seg model on the complete drone images to segment the potato plants. </li>
+  <li>**Kmeans:** Kmeans clustering on the image colors. </li>
+  <li>**Segmentation:** Runs a YoloV8n-seg model on the complete drone images to segment the potato plants. </li>
 </ol>
 
 ## Install the dependencies
