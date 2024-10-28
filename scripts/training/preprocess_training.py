@@ -203,7 +203,7 @@ if __name__ == "__main__":
 
     # Parse the script arguments:
     parser = argparse.ArgumentParser(
-        description="Convert a tensorflow model to the tensorflow lite variant"
+        description="Pre-process the collected images before training the model."
     )
     parser.add_argument(
         "--input",
