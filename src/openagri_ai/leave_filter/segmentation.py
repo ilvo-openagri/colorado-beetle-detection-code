@@ -12,7 +12,7 @@ import numpy as np
 class SegmentationFilter:
     """Leave filter using a YoloV8 segmentation"""
 
-    def __init__(self, do_warmup: bool = True):
+    def __init__(self, do_warmup: bool = False):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         config = get_config()
