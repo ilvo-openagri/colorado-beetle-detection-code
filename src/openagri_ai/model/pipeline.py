@@ -14,6 +14,7 @@ from .version import TensorFlowVersion
 import cv2
 import numpy as np
 import tensorflow as tf
+import time
 
 
 class PipelineModel(_BaseAIModel):
@@ -94,6 +95,7 @@ class PipelineModel(_BaseAIModel):
             image_file (cv2.typing.MatLike): Source image
         """
         self.logger.info("Start evaluation")
+        start_time = time.time()
 
         leave_images = self._collect_leaves(image_file, self._output_dimension)
         matching_image_set = []
@@ -145,6 +147,11 @@ class PipelineModel(_BaseAIModel):
                     )
                 active_image_set = active_image_set_split
 
+        end_time = time.time()
         self.logger.info("Completed")
 
-        return ModelResult(leaves=leave_images, beetles=matching_images_per_resolution)
+        return ModelResult(
+            execution_time=end_time - start_time,
+            leaves=leave_images,
+            beetles=matching_images_per_resolution,
+        )

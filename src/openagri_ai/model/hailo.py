@@ -5,6 +5,7 @@ from .result import AiResult, ModelResult
 import cv2
 import numpy as np
 import platform
+import time
 
 if platform.machine() == "aarch64":
     from hailo_platform import (
@@ -60,6 +61,7 @@ class HailoModel(_BaseAIModel):
         """
         matching_image_set = []
         self.logger.info("Start evaluation")
+        start_time = time.time()
 
         leave_images = self._collect_leaves(image_file, self._output_dimension)
         input_vstream_info = self.hef.get_input_vstream_infos()[0]
@@ -93,9 +95,15 @@ class HailoModel(_BaseAIModel):
                             )
                         )
 
+        end_time = time.time()
+
         self.logger.info("Completed")
 
-        return ModelResult(leaves=leave_images, beetles={64: matching_image_set})
+        return ModelResult(
+            execution_time=end_time - start_time,
+            leaves=leave_images,
+            beetles={64: matching_image_set},
+        )
 
     def close(self):
         """Release all resources on close"""

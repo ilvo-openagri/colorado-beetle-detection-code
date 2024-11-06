@@ -1,11 +1,12 @@
+from ..constants import MODEL_YOLO, MODEL_YOLO_TFLITE
+from ..settings import get_config
 from .base import _BaseAIModel
 from .result import AiResult, ModelResult
+from .version import TensorFlowVersion
 from pathlib import Path
 from ultralytics import YOLO
 import cv2
-from .version import TensorFlowVersion
-from ..settings import get_config
-from ..constants import MODEL_YOLO, MODEL_YOLO_TFLITE
+import time
 
 
 class YoloModel(_BaseAIModel):
@@ -28,7 +29,8 @@ class YoloModel(_BaseAIModel):
             self._model_path = MODEL_YOLO_TFLITE
 
         self._yolo_model = YOLO(self._model_path, task="detect")
-        self._yolo_model.to("cuda")
+        if self._device == "gpu":
+            self._yolo_model.to("cuda")
 
     def _filter(self, image_description: AiResult) -> list[dict]:
         """Filter out Colorado Beetle using the YoloV8 model
@@ -67,7 +69,7 @@ class YoloModel(_BaseAIModel):
             image_file (cv2.typing.MatLike): Source image
         """
         self.logger.info("Start evaluation")
-
+        start_time = time.time()
         leave_images = self._collect_leaves(image_file, self._output_dimension)
         matches = []
         for active_image in leave_images:
@@ -83,7 +85,12 @@ class YoloModel(_BaseAIModel):
                     confidence=match["confidence"],
                 )
             )
+        end_time = time.time()
 
         self.logger.info("Completed")
 
-        return ModelResult(leaves=leave_images, beetles={64: matching_image_set})
+        return ModelResult(
+            execution_time=end_time - start_time,
+            leaves=leave_images,
+            beetles={64: matching_image_set},
+        )
