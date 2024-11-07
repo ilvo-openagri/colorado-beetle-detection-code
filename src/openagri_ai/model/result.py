@@ -18,8 +18,8 @@ class AiResult:
 class ModelResult:
     """Class for storing the result of the OpenAgri model."""
 
-    execution_time: float = 0.0
     leaves: list[AiResult]
     beetles: dict[
         int, list[AiResult]
     ]  # Maps detection dimension on the detected beetles
+    execution_time: float = 0.0
