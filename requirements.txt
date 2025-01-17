@@ -6,11 +6,11 @@ matplotlib
 numpy==1.23.5
 opencv-python
 pandas
-PyQt5
+# PyQt5
 seaborn
 scikit-image
 scikit-learn
-tensorflow[and-cuda]
+tensorflow
 --extra-index-url https://download.pytorch.org/whl/cu121
 torch
 torchvision
