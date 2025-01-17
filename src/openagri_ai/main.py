@@ -3,7 +3,6 @@
 
 from .constants import *
 from .model import TensorFlowVersion, ModelVersion, ModelResult
-from .model import YoloModel, PipelineModel, HailoModel
 from .settings import get_config
 from .util.text import GREEN, RED, RESET
 from pathlib import Path
@@ -162,10 +161,16 @@ if __name__ == "__main__":
     ai_model = None
     config.DETECTION_MODEL = ModelVersion(config.DETECTION_MODEL)
     if config.DETECTION_MODEL == ModelVersion.YOLO:
+        from .model import YoloModel
+
         ai_model = YoloModel(0.33)
     elif config.DETECTION_MODEL == ModelVersion.HAILO:
+        from .model import HailoModel
+
         ai_model = HailoModel(0.4)
     elif config.DETECTION_MODEL == ModelVersion.PIPELINE:
+        from .model import PipelineModel
+
         ai_model = PipelineModel(0.6)
 
     # Perform the evaluation
