@@ -5,7 +5,7 @@ from . import OpenagriConfig
 
 config = OpenagriConfig(
     DETECTION_MODEL="YOLO",
-    TF_VERSION="lite",
+    TF_VERSION="default",
     LEAVE_SEGMENTATION_MODEL="NCNN",
     DETECTION_MODEL_DIM=640,
 )
