@@ -16,4 +16,4 @@ torch
 torchvision
 twine
 ultralytics
-# lib/hailort-4.18.0-cp311-cp311-linux_aarch64.whl
+lib/hailort-4.19.0-cp311-cp311-linux_aarch64.whl
