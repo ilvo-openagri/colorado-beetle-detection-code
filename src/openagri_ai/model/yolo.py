@@ -82,7 +82,9 @@ class YoloModel(_BaseAIModel):
         for match in matches:
             matching_image_set.append(
                 AiResult(
-                    image=None,
+                    image=image_file[match["x"] : match["x"] + match["w"]][
+                        match["y"] : match["y"] + match["h"]
+                    ],
                     center_x=match["x"],
                     center_y=match["y"],
                     confidence=match["confidence"],
