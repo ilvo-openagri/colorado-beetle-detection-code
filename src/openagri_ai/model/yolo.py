@@ -52,12 +52,8 @@ class YoloModel(_BaseAIModel):
             for match_entry in match.summary():
                 yolo_results.append(
                     {
-                        "x": image_description.center_x
-                        - self._output_dimension // 2
-                        + int(match_entry["box"]["x1"]),
-                        "y": image_description.center_y
-                        - self._output_dimension // 2
-                        + int(match_entry["box"]["y1"]),
+                        "x": image_description.loc_x + int(match_entry["box"]["x1"]),
+                        "y": image_description.loc_y + int(match_entry["box"]["y1"]),
                         "w": int(match_entry["box"]["x2"] - match_entry["box"]["x1"]),
                         "h": int(match_entry["box"]["y2"] - match_entry["box"]["y1"]),
                         "confidence": match_entry["confidence"],

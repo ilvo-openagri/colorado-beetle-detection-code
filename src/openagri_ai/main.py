@@ -63,8 +63,8 @@ def visualise(
         for leave in result.leaves:
             rect = patches.Rectangle(
                 xy=(
-                    leave.center_x - size / 2,
-                    leave.center_y - size / 2,
+                    leave.loc_x - size / 2,
+                    leave.loc_y - size / 2,
                 ),
                 width=size,
                 height=size,
@@ -86,8 +86,8 @@ def visualise(
         for model_match in model_matches:
             rect = patches.Rectangle(
                 xy=(
-                    model_match.center_x - model_size / 2,
-                    model_match.center_y - model_size / 2,
+                    model_match.loc_x - model_size / 2,
+                    model_match.loc_y - model_size / 2,
                 ),
                 width=model_size,
                 height=model_size,

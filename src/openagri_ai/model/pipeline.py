@@ -141,8 +141,8 @@ class PipelineModel(_BaseAIModel):
                         self._split_image(
                             source_image=active_image.image,
                             piece_size=pipeline_model // 2,
-                            x_offset=active_image.center_x - pipeline_model // 2,
-                            y_offset=active_image.center_y - pipeline_model // 2,
+                            x_offset=active_image.loc_x - pipeline_model // 2,
+                            y_offset=active_image.loc_y - pipeline_model // 2,
                         )
                     )
                 active_image_set = active_image_set_split
