@@ -91,8 +91,10 @@ class SegmentationFilter:
                         x_coordinate : x_coordinate + dimension,
                         y_coordinate : y_coordinate + dimension,
                     ],
-                    center_x=y_coordinate + dimension // 2,
-                    center_y=x_coordinate + dimension // 2,
+                    loc_x=y_coordinate,
+                    loc_y=x_coordinate,
+                    width=dimension,
+                    height=dimension,
                     confidence=0,
                 )
 

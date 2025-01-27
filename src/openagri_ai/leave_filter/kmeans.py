@@ -66,8 +66,10 @@ class KmeansFilter:
                             y_offset : y_offset + dimension,
                             x_offset : x_offset + dimension,
                         ],
-                        center_x=x_offset + dimension // 2,
-                        center_y=y_offset + dimension // 2,
+                        center_x=x_offset,
+                        center_y=y_offset,
+                        width=dimension,
+                        heiight=dimension,
                         confidence=0,
                     )
                 )

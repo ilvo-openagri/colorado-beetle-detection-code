@@ -58,8 +58,10 @@ class _BaseAIModel(ABC):
                 pieces.append(
                     AiResult(
                         image=img_piece,
-                        center_x=x + piece_size / 2 + x_offset,
-                        center_y=y + piece_size / 2 + y_offset,
+                        loc_x=x + x_offset,
+                        loc_y=y + y_offset,
+                        width=piece_size,
+                        height=piece_size,
                         confidence=0,
                     )
                 )

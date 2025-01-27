@@ -85,8 +85,10 @@ class YoloModel(_BaseAIModel):
                     image=image_file[match["x"] : match["x"] + match["w"]][
                         match["y"] : match["y"] + match["h"]
                     ],
-                    center_x=match["x"],
-                    center_y=match["y"],
+                    loc_x=match["x"],
+                    loc_y=match["y"],
+                    width=match["w"],
+                    height=match["h"],
                     confidence=match["confidence"],
                 )
             )

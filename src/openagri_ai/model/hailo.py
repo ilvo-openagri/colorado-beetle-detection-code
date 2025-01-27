@@ -85,13 +85,15 @@ class HailoModel(_BaseAIModel):
                         matching_image_set.append(
                             AiResult(
                                 image=None,
-                                center_x=active_image.center_x
+                                loc_x=active_image.center_x
                                 - self._output_dimension / 2
                                 + self._output_dimension * hailo_result[1],
-                                center_y=active_image.center_y
+                                loc_y=active_image.center_y
                                 - self._output_dimension / 2
                                 + self._output_dimension * hailo_result[0],
                                 confidence=hailo_result[4],
+                                width=hailo_result[3],
+                                height=hailo_result[2],
                             )
                         )
 

@@ -8,8 +8,10 @@ class AiResult:
     """Class for storing the result of an image inference."""
 
     image: np.ndarray
-    center_x: int
-    center_y: int
+    loc_x: int
+    loc_y: int
+    width: int
+    height: int
     confidence: float
     annotation: str = ""
 
