@@ -13,7 +13,9 @@ import numpy as np
 class SegmentationFilter:
     """Leave filter using a YoloV8 segmentation"""
 
-    def __init__(self, do_warmup: bool = False, config: OpenagriConfig = None):
+    def __init__(
+        self, device: str, do_warmup: bool = False, config: OpenagriConfig = None
+    ):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         if config is None:
@@ -53,7 +55,7 @@ class SegmentationFilter:
 
         # 1. First perform segmentation to identify the leaves:
         self.logger.info("Performing segmentation")
-        results = self._model.predict(source_image, verbose=False)
+        results = self._model.predict(source_image, verbose=False, device=0)
         self._leave_mask = np.zeros(source_image.shape[:2], np.uint8)
         for result in results:
             for c in result:

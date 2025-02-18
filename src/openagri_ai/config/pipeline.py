@@ -3,4 +3,4 @@
 
 from . import OpenagriConfig
 
-config = OpenagriConfig(DETECTION_MODEL="PIPELINE", TF_VERSION="default")
+config = OpenagriConfig(DETECTION_MODEL="PIPELINE", TF_VERSION="default", DEVICE="CPU")

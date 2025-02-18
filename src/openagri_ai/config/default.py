@@ -8,4 +8,5 @@ config = OpenagriConfig(
     TF_VERSION="default",
     LEAVE_SEGMENTATION_MODEL="NCNN",
     DETECTION_MODEL_DIM=640,
+    DEVICE="CPU",
 )

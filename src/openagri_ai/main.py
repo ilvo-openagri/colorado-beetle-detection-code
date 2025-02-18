@@ -163,15 +163,15 @@ if __name__ == "__main__":
     if config.DETECTION_MODEL == ModelVersion.YOLO:
         from .model import YoloModel
 
-        ai_model = YoloModel(0.33)
+        ai_model = YoloModel(0.33, device=config.DEVICE)
     elif config.DETECTION_MODEL == ModelVersion.HAILO:
         from .model import HailoModel
 
-        ai_model = HailoModel(0.4)
-    elif config.DETECTION_MODEL == ModelVersion.PIPELINE:
-        from .model import PipelineModel
+        ai_model = HailoModel(0.4, device=config.DEVICE)
+    # elif config.DETECTION_MODEL == ModelVersion.PIPELINE:
+    #     from .model import PipelineModel
 
-        ai_model = PipelineModel(0.6)
+    #     ai_model = PipelineModel(0.6, device=config.DEVICE)
 
     # Perform the evaluation
     start_time = time.time()
@@ -194,3 +194,5 @@ if __name__ == "__main__":
             result=model_result,
         )
         logger.info("Written to %s", output_path)
+    else:
+        logger.error("Can't write to output path: %s", output_path)

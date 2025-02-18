@@ -9,10 +9,10 @@ import numpy as np
 class _BaseAIModel(ABC):
     """Base AI model."""
 
-    def __init__(self):
+    def __init__(self, device: str):
         self.logger = logging.getLogger(f"OpenAgriAIModule_{__name__}")
         self.logger.setLevel(logging.INFO)
-        self.leave_filter = SegmentationFilter()
+        self.leave_filter = SegmentationFilter(device=device)
 
     def _split_image(
         self,

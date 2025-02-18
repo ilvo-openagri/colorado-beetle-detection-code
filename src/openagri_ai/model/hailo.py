@@ -23,8 +23,8 @@ if platform.machine() == "aarch64":
 class HailoModel(_BaseAIModel):
     """YoloV8 model which can be run on the Hailo8L AI shield"""
 
-    def __init__(self, confidence: float):
-        super().__init__()
+    def __init__(self, confidence: float, device: str = "cpu"):
+        super().__init__(device=device)
         config = get_config()
         self._confidence = confidence
         self._output_dimension = config.DETECTION_MODEL_DIM

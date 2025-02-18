@@ -17,7 +17,7 @@ class YoloModel(_BaseAIModel):
         confidence: float,
         device: str = "cpu",
     ):
-        super().__init__()
+        super().__init__(device)
         config = get_config()
         self._confidence = confidence
         self._output_dimension = config.DETECTION_MODEL_DIM
@@ -29,7 +29,8 @@ class YoloModel(_BaseAIModel):
             self._model_path = MODEL_YOLO_TFLITE
 
         self._yolo_model = YOLO(self._model_path, task="detect")
-        if self._device == "gpu":
+        if self._device == "GPU":
+            self.logger.info("CB detection using GPU")
             self._yolo_model.to("cuda")
 
     def _filter(self, image_description: AiResult) -> list[dict]:
@@ -75,11 +76,17 @@ class YoloModel(_BaseAIModel):
             matches.extend(self._filter(active_image))
 
         matching_image_set = []
+
         for match in matches:
             matching_image_set.append(
                 AiResult(
-                    image=image_file[match["x"] : match["x"] + match["w"]][
-                        match["y"] : match["y"] + match["h"]
+                    image=image_file[
+                        max(match["y"] - 16, 0) : min(
+                            match["y"] + 48, image_file.shape[0]
+                        ),  # match["h"],
+                        max(match["x"] - 16, 0) : min(
+                            match["x"] + 48, image_file.shape[1]
+                        ),  # match["w"],
                     ],
                     loc_x=match["x"],
                     loc_y=match["y"],
