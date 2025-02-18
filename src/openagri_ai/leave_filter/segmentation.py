@@ -18,6 +18,7 @@ class SegmentationFilter:
     ):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
+        self._device = device
         if config is None:
             config = get_config()
 
@@ -55,7 +56,12 @@ class SegmentationFilter:
 
         # 1. First perform segmentation to identify the leaves:
         self.logger.info("Performing segmentation")
-        results = self._model.predict(source_image, verbose=False, device=0)
+
+        if self._device == "GPU":
+            results = self._model.predict(source_image, verbose=False, device=0)
+        else:
+            results = self._model.predict(source_image, verbose=False)
+
         self._leave_mask = np.zeros(source_image.shape[:2], np.uint8)
         for result in results:
             for c in result:
