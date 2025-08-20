@@ -75,7 +75,8 @@ class HailoModel(_BaseAIModel):
                 for active_image in leave_images:
                     input_data = {
                         input_vstream_info.name: np.array(
-                            [active_image.image], dtype=np.float32
+                            [cv2.cvtColor(active_image.image, cv2.COLOR_BGR2RGB)],
+                            dtype=np.float32,
                         )
                     }
                     infer_results = infer_pipeline.infer(input_data)
@@ -97,7 +98,7 @@ class HailoModel(_BaseAIModel):
 
         end_time = time.time()
 
-        self.logger.info("Completed")
+        self.logger.info("Completed. Matched %d tiles", len(matching_image_set))
 
         return ModelResult(
             execution_time=end_time - start_time,

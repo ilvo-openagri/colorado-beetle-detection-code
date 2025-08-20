@@ -20,4 +20,4 @@ MODEL_CLASS_PYTORCH = "./trained_models/model_yolov8n_segmentation/3d_092025/mod
 
 # YoloV8 models for the Hailo8L AI shield
 MODEL_HAILO_256 = "./trained_models/model_yolov8n_256/model.hef"
-MODEL_HAILO_640 = "./trained_models/model_yolov8n_640/3d_092025/model.hef"
+MODEL_HAILO_640 = "./trained_models/model_yolov8n_640/3d_092025/yolov8n.hef"
