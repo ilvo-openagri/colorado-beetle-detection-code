@@ -80,11 +80,11 @@ class _BaseAIModel(ABC):
             dimension (int): Dimension of the regions
         """
 
-        # Crop the image:
+        # # Crop the image:
         x_size = image_file.shape[0] // dimension
         y_size = image_file.shape[1] // dimension
-        self.logger.info("Crop image to %dx%d", x_size * dimension, y_size * dimension)
-        image_file = image_file[: x_size * dimension, : y_size * dimension]
+        # self.logger.info("Crop image to %dx%d [%d]", x_size * dimension, y_size * dimension, dimension)
+        # image_file = image_file[: x_size * dimension, : y_size * dimension]
 
         # Filter out the leaves:
         self.logger.info("Start filtering to extract the leaves")

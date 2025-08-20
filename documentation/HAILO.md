@@ -2,10 +2,23 @@
 
 ### Prepare your environment for the HAILO AI shield:
 Activate the virtual environment, and install the requirements
-```
+```bash
 cd openagri-ai
-python3 -m venv .venv
-python3 -m pip install -r requirements.txt
+python3.10 -m venv .venv-hailo
+source .venv-hailo/bin/activate
+python3 -m pip install --upgrade pip
+python3 -m pip install ultralytics
+cd ./lib
+sudo dpkg -i hailort_4.22.0_amd64.deb
+python3 -m pip install hailo_dataflow_compiler-3.32.0-py3-none-linux_x86_64.whl
+python3 -m pip install hailort-4.22.0-cp310-cp310-linux_x86_64.whl
+cd hailo_model_zoo
+
+# HailoRT 4.20 → MZ version 2.14
+# HailoRT 4.21 → MZ version 2.15
+# HailoRT 4.22 → MZ version 2.16
+git checkout v2.16
+python3 -m pip install -e .
 ```
 
 Clone the hailo model zoo repository
@@ -15,7 +28,7 @@ https://github.com/hailo-ai/hailo_model_zoo.git
 
 Link the git repository into your virtual environment. Dirty, but the code did not seem to work otherwise (file not found exception). Hopefully this will be patched in a future release of the Hailo Model Zoo.
 ```
-ln -sf /home/jbauwens/Documents/Code/hailo_model_zoo/hailo_model_zoo/cfg/ /home/jbauwens/Documents/Code/openagri_ai/.venv/lib/python3.10/site-packages/hailo_model_zoo/
+ln -sf /home/jbauwens/openagri/openagri_ai/lib/hailo_model_zoo/hailo_model_zoo/cfg/ /home/jbauwens/openagri/openagri_ai/.venv-hailo/lib/python3.12/site-packages/hailo_model_zoo
 ```
 
 #### Update the Hailo Model Zoo parameters
@@ -30,7 +43,7 @@ The output layers for the newly created model were:
 
 Following files need to be adapted:
 ```
-(.venv) jbauwens@tv115ljan:~/Documents/Code/hailo_model_zoo$ git diff hailo_model_zoo/cfg/base/yolo.yaml
+(.venv-hailo) jbauwens@tv115ljan:~/Documents/Code/hailo_model_zoo$ git diff hailo_model_zoo/cfg/base/yolo.yaml
 diff --git a/hailo_model_zoo/cfg/base/yolo.yaml b/hailo_model_zoo/cfg/base/yolo.yaml
 index f7d458f..32a8f2a 100644
 --- a/hailo_model_zoo/cfg/base/yolo.yaml
@@ -46,7 +59,7 @@ index f7d458f..32a8f2a 100644
    - 3
    meta_arch: yolo_v5
    padding_color: 114
-(.venv) jbauwens@tv115ljan:~/Documents/Code/hailo_model_zoo$ git diff hailo_model_zoo/cfg/networks/yolov8s.yaml
+(.venv-hailo) jbauwens@tv115ljan:~/Documents/Code/hailo_model_zoo$ git diff hailo_model_zoo/cfg/networks/yolov8s.yaml
 diff --git a/hailo_model_zoo/cfg/networks/yolov8s.yaml b/hailo_model_zoo/cfg/networks/yolov8s.yaml
 index e038020..9e619d5 100644
 --- a/hailo_model_zoo/cfg/networks/yolov8s.yaml
@@ -60,7 +73,7 @@ index e038020..9e619d5 100644
  paths:
    network_path:
    - models_files/ObjectDetection/Detection-COCO/yolo/yolov8s/2023-02-02/yolov8s.onnx
-(.venv) jbauwens@tv115ljan:~/Documents/Code/hailo_model_zoo$ git diff hailo_model_zoo/cfg/postprocess_config/yolov8s_nms_config.json
+(.venv-hailo) jbauwens@tv115ljan:~/Documents/Code/hailo_model_zoo$ git diff hailo_model_zoo/cfg/postprocess_config/yolov8s_nms_config.json
 diff --git a/hailo_model_zoo/cfg/postprocess_config/yolov8s_nms_config.json b/hailo_model_zoo/cfg/postprocess_config/yolov8s_nms_config.json
 index 3d7747e..e8cbcf9 100644
 --- a/hailo_model_zoo/cfg/postprocess_config/yolov8s_nms_config.json

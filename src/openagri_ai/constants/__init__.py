@@ -9,7 +9,7 @@ MODEL_LITE_128 = "./trained_models/model128/model.tflite"
 MODEL_LITE_256 = "./trained_models/model256/model.tflite"
 
 # Yolo models (default + tflite)
-MODEL_YOLO = "./trained_models/model_yolov8n_640/model.pt"
+MODEL_YOLO = "./trained_models/model_yolov8n_640/3d_092025/model.pt"
 MODEL_YOLO_TFLITE = "./trained_models/yolo256_saved_model/yolo256_float32.tflite"
 
 # Leave detection YoloV8 model (NCNN + PYTORCH)

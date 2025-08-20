@@ -1,0 +1,19 @@
+colormath
+dill
+ipykernel
+# keras==2.*
+matplotlib
+numpy #==1.23.5
+opencv-python
+pandas
+# PyQt5
+seaborn
+scikit-image
+scikit-learn
+tensorflow
+tk
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch
+torchvision
+twine
+ultralytics
