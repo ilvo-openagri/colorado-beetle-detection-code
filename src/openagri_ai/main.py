@@ -24,7 +24,7 @@ if platform.system() == "Windows":
     os.environ["OMP_NUM_THREADS"] = "1"
 
 if platform.machine() != "aarch64":
-    matplotlib.use("tkagg")
+    matplotlib.use("Agg")
 
 
 ai_model = None
@@ -63,8 +63,8 @@ def visualise(
         for leave in result.leaves:
             rect = patches.Rectangle(
                 xy=(
-                    leave.loc_x - size / 2,
-                    leave.loc_y - size / 2,
+                    leave.loc_x,
+                    leave.loc_y,
                 ),
                 width=size,
                 height=size,

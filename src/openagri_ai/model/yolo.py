@@ -6,6 +6,7 @@ from .version import TensorFlowVersion
 from pathlib import Path
 from ultralytics import YOLO
 import cv2
+import logging
 import time
 
 
@@ -18,6 +19,8 @@ class YoloModel(_BaseAIModel):
         device: str = "cpu",
     ):
         super().__init__(device)
+        self.logger = logging.getLogger(f"OpenAgriAIModule_{__name__}")
+
         config = get_config()
         self._confidence = confidence
         self._output_dimension = config.DETECTION_MODEL_DIM

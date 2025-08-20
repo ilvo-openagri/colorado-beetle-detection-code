@@ -15,14 +15,14 @@ First make sure that the python environment has been created.
 You can run this in the system python environment, but this is not advisable.
 It is better to create a python virtual environment.
 
-For reference, this project was tested with python3.11. If you use a newer python version, ensure that the packages are available for the python version.
+For reference, this project was tested with python3.10. If you use a newer python version, ensure that the packages are available for the python version.
 
 To create a virtual environment, execute following command:
 ```shell
 # Windows:
-python.exe -m venv .venv
+python3.10.exe -m venv .venv
 # Linux:
-python -m venv .venv
+python3.10 -m venv .venv
 ```
 
 Active the virtual environment:
@@ -37,9 +37,11 @@ To install the required python packages, the requirements.txt was created.
 This file can be used to easily install the dependencies.
 ```shell
 # Windows:
-python.exe -m pip install -r requirements.txt
+python.exe -m pip install -r requirements-cloud.txt # cloud deployment
+python.exe -m pip install -r requirements-edge.txt # edge deployment
 # Linux:
-python -m pip install -r requirements.txt
+python -m pip install -r requirements-cloud.txt # cloud deployment
+python -m pip install -r requirements-edge.txt # edge deployment
 ```
 
 ## Hailo8L AI shield dependencies (Raspberry PI AI kit)
