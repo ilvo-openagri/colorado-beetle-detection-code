@@ -88,7 +88,6 @@ class SegmentationFilter:
                     (x_coordinate + dimension // 2, y_coordinate + dimension // 2),
                 )
                 green_hits = 0
-                self.logger.info(len(relevant_pixels))
                 for pixel in relevant_pixels:
                     if pixel[0] < 0 or pixel[0] >= source_image.shape[0]:
                         # Out of bounds in x direction

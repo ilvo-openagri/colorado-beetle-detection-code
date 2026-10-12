@@ -9,11 +9,15 @@ MODEL_LITE_128 = "./trained_models/model128/model.tflite"
 MODEL_LITE_256 = "./trained_models/model256/model.tflite"
 
 # Yolo models (default + tflite)
-MODEL_YOLO = "./trained_models/model_yolov8n_640/3d_092025/model.pt"
+MODEL_YOLO_NANO = "./trained_models/model_yolov8n_640/3d_092025/model.pt"
+MODEL_YOLO_LARGE = "./trained_models/model_yolov8l_640/3d_092025/model.pt"
+MODEL_YOLO = MODEL_YOLO_LARGE
 MODEL_YOLO_TFLITE = "./trained_models/yolo256_saved_model/yolo256_float32.tflite"
 
 # Leave detection YoloV8 model (NCNN + PYTORCH)
-MODEL_CLASS_NCNN = "./trained_models/model_yolov8n_segmentation/3d_092025/model_ncnn_model/"
+MODEL_CLASS_NCNN = (
+    "./trained_models/model_yolov8n_segmentation/3d_092025/model_ncnn_model/"
+)
 MODEL_CLASS_PYTORCH = "./trained_models/model_yolov8n_segmentation/3d_092025/model.pt"
 
 # YoloV8 models for the Hailo8L AI shield

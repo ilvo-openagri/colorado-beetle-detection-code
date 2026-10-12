@@ -1,6 +1,8 @@
 __pycache__
 .pypirc
 .venv
+.venv-hailo
+.venv-runtime
 .vscode
 *.npy
 *.pyc

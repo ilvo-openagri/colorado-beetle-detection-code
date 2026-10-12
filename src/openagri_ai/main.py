@@ -1,5 +1,4 @@
-"""Module to perform all AI related steps for the OpenAgri project.
-"""
+"""Module to perform all AI related steps for the OpenAgri project."""
 
 from .constants import *
 from .model import TensorFlowVersion, ModelVersion, ModelResult
@@ -174,15 +173,17 @@ if __name__ == "__main__":
     #     ai_model = PipelineModel(0.6, device=config.DEVICE)
 
     # Perform the evaluation
-    start_time = time.time()
-    model_result = ai_model.evaluate(input_image)
-    model_execution_time = round(time.time() - start_time, 2)
-    logger.info(
-        "%sEvaluation took %s seconds%s",
-        GREEN if model_execution_time < 1 else RED,
-        model_execution_time,
-        RESET,
-    )
+    for _ in range(2):
+        start_time = time.time()
+        model_result = ai_model.evaluate(input_image)
+        model_execution_time = round(time.time() - start_time, 2)
+        logger.info(
+            "%sEvaluation took %s seconds%s",
+            GREEN if model_execution_time < 1 else RED,
+            model_execution_time,
+            RESET,
+        )
+        time.sleep(5)
 
     # Write the results to an image for visualisation:
     output_path = Path(script_arguments.output)
