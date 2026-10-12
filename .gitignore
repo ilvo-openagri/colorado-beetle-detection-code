@@ -1,16 +1,26 @@
-__pycache__
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# Local environments and credentials
+.venv/
+.venv-*/
 .pypirc
-.venv
-.venv-hailo
-.venv-runtime
-.vscode
+.vscode/
+
+# Local datasets, model outputs, and generated files
 *.npy
-*.pyc
-*\.egg-info*
-dist
-pyproject.previous.toml
-runs
-test_images
-trainingset
+runs/
+test_images/
+trainingset/
+Thesis_Robin.pdf
 *.log
+.install_logs/
 **-info
+pyproject.previous.toml
