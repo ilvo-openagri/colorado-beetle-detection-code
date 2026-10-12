@@ -1,0 +1,15 @@
+This work was developed by EV ILVO within the OpenAgri project, funded by the
+European Union's Horizon Europe research and innovation programme under grant
+agreement No. 101134083.
+
+Views and opinions expressed are those of the author(s) only and do not
+necessarily reflect those of the European Union or the granting authority.
+Neither the European Union nor the granting authority can be held responsible
+for them.
+
+The Apache License 2.0 applies to the project's own software and documentation
+as identified in the LICENSE file. This repository also contains or references
+trained models, datasets, submodules, vendor binaries, and third-party
+dependencies that may be governed by separate licenses or terms. Review the
+license and notices provided by each upstream project or supplier before use or
+redistribution.

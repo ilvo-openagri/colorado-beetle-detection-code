@@ -1,3 +1,6 @@
 [submodule "trained_models"]
 	path = trained_models
-	url = git@gitlab.ilvo.be:openagri/colorado-beetle-models.git
+	url = https://gitlab.ilvo.be/openagri/colorado-beetle-models.git
+[submodule "hailo_model_zoo"]
+	path = lib/hailo_model_zoo
+	url = https://github.com/hailo-ai/hailo_model_zoo.git

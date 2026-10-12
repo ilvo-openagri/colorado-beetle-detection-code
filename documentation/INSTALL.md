@@ -1,66 +1,99 @@
-# Installation of the Colorado Beetle model
-This installation readme goes over the steps required to run the Colorado Beetle detection model.
-Install and activate the required dependencies on your machine.
+# Installation
 
-## Models:
-The models are stored in a git repository seperate from the AI code. This is done to keep the codebase clean.
-The repository containing the AI models is registered as a git submodule. Execute following commands to add them to your local repository.
+This guide covers installing the OpenAgri AI Python package and preparing the
+model files used by the Colorado beetle detector. Hailo-specific system and
+hardware setup is described in [HAILO.md](HAILO.md).
+
+## Requirements
+
+- Linux, Windows, or macOS with Python 3.10 or newer. Python 3.10 is the version
+  identified in the project installation notes.
+- Git, including support for initializing Git submodules.
+- A virtual environment. Some optional accelerator dependencies have additional
+  platform and Python-version requirements; see below.
+
+## Get the code and models
+
+From the repository root, initialize the trained-model and Hailo Model Zoo
+submodules:
 
 ```shell
 git submodule update --init --recursive
 ```
 
-## Python virtual environment
-First make sure that the python environment has been created.
-You can run this in the system python environment, but this is not advisable.
-It is better to create a python virtual environment.
+The Hailo Model Zoo is only needed for Hailo model workflows. The trained-model
+submodule is separate from this source repository.
 
-For reference, this project was tested with python3.10. If you use a newer python version, ensure that the packages are available for the python version.
+## Create an environment
 
-To create a virtual environment, execute following command:
+Create and activate a virtual environment. For example, with Python 3.10:
+
 ```shell
-# Windows:
-python3.10.exe -m venv .venv
-# Linux:
 python3.10 -m venv .venv
-```
-
-Active the virtual environment:
-```shell
-# Windows:
-.\.venv\Scripts\activate
-# Linux:
 source .venv/bin/activate
+python -m pip install --upgrade pip
 ```
 
-To install the required python packages, the requirements.txt was created.
-This file can be used to easily install the dependencies.
-```shell
-# Windows:
-python.exe -m pip install -r requirements-cloud.txt # cloud deployment
-python.exe -m pip install -r requirements-edge.txt # edge deployment
-# Linux:
-python -m pip install -r requirements-cloud.txt # cloud deployment
-python -m pip install -r requirements-edge.txt # edge deployment
+On Windows, activate it with:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
 ```
 
-## Hailo8L AI shield dependencies (Raspberry PI AI kit)
-Install the necessary hailo dependencies.
-```shell
-sudo apt install hailo-full
-```
+## Install dependencies
 
-Download the hailort python wheel from the hailo developer zone to the lib directory.
+For a cloud or general-purpose environment, install the cloud dependency set:
 
 ```shell
-(.venv) jbauwens@rpiILVO:~/Code/openagri_ai $ ll lib/
-total 8440
-drwxr-xr-x  3 jbauwens jbauwens    4096 Oct  3 15:52 .
-drwxr-xr-x 11 jbauwens jbauwens    4096 Oct  3 15:18 ..
--rwxr-xr-x  1 jbauwens jbauwens 8626214 Oct  3 15:51 hailort-4.18.0-cp311-cp311-linux_aarch64.whl
+python -m pip install -r requirements-cloud.txt
 ```
 
-Additional packages:
+For the edge dependency set, use:
+
 ```shell
-apt-get install libgl1
+python -m pip install -r requirements-edge.txt
 ```
+
+The edge requirements currently reference a HailoRT wheel for Linux ARM64 and
+CPython 3.11. Use a compatible Python/platform combination for that wheel; for
+other Hailo setups, follow the hardware-specific instructions in
+[HAILO.md](HAILO.md) and use matching vendor packages. Hailo runtime
+installation may also require system packages and permissions that cannot be
+installed through pip alone.
+
+Install this repository in editable mode after installing the selected
+requirements:
+
+```shell
+python -m pip install --no-deps -e .
+```
+
+The dependency manifests install the runtime dependencies separately; `--no-deps`
+avoids resolving a second, potentially different set from package metadata.
+
+## Run the detector
+
+Evaluate an image and optionally save an annotated copy:
+
+```shell
+python -m openagri_ai.main \
+  --config default \
+  --input ./test_images/sectie32.JPG \
+  --output ./test_images/sectie32_annotated.JPG
+```
+
+The command accepts `--input`, optional `--output`, and optional `--config`.
+`default` selects the standard YOLO configuration, `gpu` selects the GPU YOLO
+configuration, and `raspi` selects the Hailo configuration. The latter requires
+a working Hailo runtime and a compatible device.
+
+For available training and conversion scripts, see
+[SCRIPTS.md](SCRIPTS.md). For package building and distribution, see
+[PACKAGING.md](PACKAGING.md).
+
+## Licensing
+
+See [the repository license](../LICENSE) for the license applicable to the
+project's own software. Trained models, datasets, Hailo software, submodules,
+and dependencies may carry additional terms; review [the notice](../NOTICE) and
+the relevant upstream licenses before redistribution.
