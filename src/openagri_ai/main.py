@@ -83,6 +83,14 @@ def visualise(
     # Draw boxes around the model matches:
     for model_size, model_matches in result.beetles.items():
         for model_match in model_matches:
+            logger.info(
+                "Visualising match: %s [%s]",
+                (
+                    model_match.loc_x - model_size / 2,
+                    model_match.loc_y - model_size / 2,
+                ),
+                model_size,
+            )
             rect = patches.Rectangle(
                 xy=(
                     model_match.loc_x - model_size / 2,
