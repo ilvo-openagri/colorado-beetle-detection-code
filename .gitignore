@@ -24,3 +24,17 @@ Thesis_Robin.pdf
 .install_logs/
 **-info
 pyproject.previous.toml
+
+# Images
+*.jpg
+*.JPG
+*.jpeg
+*.JPEG
+*.png
+*.PNG
+*.gif
+*.GIF
+*.bmp
+*.BMP
+*.tiff
+*.TIFF

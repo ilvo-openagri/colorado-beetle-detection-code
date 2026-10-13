@@ -64,6 +64,7 @@ class SegmentationFilter:
             results = self._model.predict(source_image, verbose=False, device=0)
         else:
             results = self._model.predict(source_image, verbose=False)
+        self.logger.info("Segmentation completed")
 
         self._leave_mask = np.zeros(source_image.shape[:2], np.uint8)
 
@@ -73,7 +74,8 @@ class SegmentationFilter:
                 cv2.drawContours(
                     self._leave_mask, [contour], -1, (255, 255, 255), cv2.FILLED
                 )
-        write_image(self._leave_mask, "output_1.jpg")
+        if False:
+            write_image(self._leave_mask, "output_1.jpg")
 
         # 2. Extract the images containing enough green:
         for x_index in range(grid_dimension[0]):

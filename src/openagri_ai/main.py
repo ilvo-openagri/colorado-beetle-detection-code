@@ -191,7 +191,6 @@ if __name__ == "__main__":
             model_execution_time,
             RESET,
         )
-        time.sleep(5)
 
     # Write the results to an image for visualisation:
     output_path = Path(script_arguments.output)

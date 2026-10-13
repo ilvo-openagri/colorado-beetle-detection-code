@@ -16,4 +16,5 @@ torch
 torchvision
 twine
 ultralytics
-lib/hailort-4.19.0-cp311-cp311-linux_aarch64.whl
+lib/hailort-4.20.0-cp311-cp311-linux_aarch64.whl
+git+https://github.com/Tencent/ncnn.git
